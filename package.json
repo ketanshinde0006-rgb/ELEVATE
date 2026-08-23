@@ -9,6 +9,8 @@
     "dev:server": "cd server && npm run dev",
     "build": "cd client && npm install && npm run build",
     "vercel-build": "cd client && npm install && npm run build",
+    "server:build": "cd server && npm install && npx prisma generate && npx prisma db push && node prisma/seed.js",
+    "server:start": "cd server && npm start",
     "start": "cd server && npm start",
     "db:migrate": "cd server && npx prisma migrate dev",
     "db:seed": "cd server && npx prisma db seed",
