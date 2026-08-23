@@ -1,0 +1,316 @@
+/* ============================================================
+   ELEVATE — About Us Styles
+   ============================================================ */
+
+.about-page {
+  background-color: var(--color-bg-primary);
+  min-height: calc(100vh - 68px);
+  padding: 24px 0 60px;
+}
+
+.about-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-accent-primary);
+  display: block;
+  margin-bottom: 6px;
+}
+
+/* ── Hero ── */
+.about-hero {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 32px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  padding: 40px;
+  margin-bottom: 36px;
+  align-items: center;
+  box-shadow: 0 12px 36px rgba(20, 19, 18, 0.04);
+}
+
+.about-hero__title {
+  font-family: var(--font-family-serif);
+  font-size: clamp(2.2rem, 3.8vw, 3.2rem);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.15;
+  margin: 8px 0 16px;
+}
+
+.about-hero__serif {
+  font-style: italic;
+  color: var(--color-accent-primary);
+  font-weight: 400;
+}
+
+.about-hero__desc {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: 28px;
+  max-width: 520px;
+}
+
+.about-hero__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.about-hero__image-wrap {
+  width: 100%;
+  aspect-ratio: 4/3;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 12px 28px rgba(20, 19, 18, 0.08);
+}
+
+.about-hero__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Split Purpose Section ── */
+.about-split-section {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 36px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  padding: 36px;
+  margin-bottom: 40px;
+  align-items: center;
+}
+
+.about-split__img-box {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.about-split__img-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.about-split__quote-badge {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  background: rgba(22, 21, 20, 0.85);
+  backdrop-filter: blur(8px);
+  color: #FFFFFF;
+  font-family: var(--font-family-serif);
+  font-style: italic;
+  font-size: 13.5px;
+  line-height: 1.45;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(250, 248, 245, 0.2);
+}
+
+.about-split__text-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.about-section-title {
+  font-family: var(--font-family-serif);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 4px 0 14px;
+}
+
+.about-body {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  line-height: 1.65;
+  margin: 0 0 16px;
+}
+
+.about-split__flow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.about-flow-step {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  padding: 4px 12px;
+  border-radius: 6px;
+}
+
+.about-flow-arrow {
+  font-size: 12px;
+  color: var(--color-accent-primary);
+}
+
+/* ── Pillars ── */
+.about-pillars-section {
+  margin-bottom: 40px;
+}
+
+.about-section-header {
+  margin-bottom: 20px;
+}
+
+.about-pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.about-pillar-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.about-pillar-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(20, 19, 18, 0.06);
+  border-color: var(--color-accent-primary);
+}
+
+.about-pillar-num {
+  font-family: var(--font-family-serif);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-accent-primary);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.about-pillar-title {
+  font-family: var(--font-family-serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 10px;
+}
+
+.about-pillar-desc {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.55;
+  margin: 0 0 16px;
+  flex: 1;
+}
+
+.about-pillar-link {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-accent-primary);
+  text-decoration: none;
+}
+
+.about-pillar-link:hover {
+  text-decoration: underline;
+}
+
+/* ── Values ── */
+.about-values-section {
+  margin-bottom: 40px;
+}
+
+.about-values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.about-value-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.about-value-title {
+  font-family: var(--font-family-serif);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 8px;
+}
+
+.about-value-desc {
+  font-size: 12.5px;
+  color: var(--color-text-secondary);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ── CTA Banner ── */
+.about-cta-banner {
+  background: #161514;
+  border-radius: 24px;
+  padding: 48px 36px;
+  text-align: center;
+  color: #FFFFFF;
+}
+
+.about-cta-banner__title {
+  font-family: var(--font-family-serif);
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+
+.about-cta-banner__desc {
+  font-size: 14px;
+  color: rgba(250, 248, 245, 0.75);
+  line-height: 1.6;
+  max-width: 580px;
+  margin: 0 auto 24px;
+}
+
+.about-cta-banner__actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.about-cta-banner .btn--secondary {
+  background: transparent;
+  color: #FAF8F5;
+  border-color: rgba(250, 248, 245, 0.35);
+}
+
+.about-cta-banner .btn--secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #FAF8F5;
+  color: #FAF8F5;
+}
+
+@media (max-width: 900px) {
+  .about-hero, .about-split-section {
+    grid-template-columns: 1fr;
+    padding: 24px;
+  }
+}

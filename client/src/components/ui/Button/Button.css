@@ -1,0 +1,202 @@
+/* ============================================================
+   ELEVATE — Button Component Styles
+   ============================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  letter-spacing: var(--letter-spacing-wide);
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  white-space: nowrap;
+  text-decoration: none;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--color-accent-primary);
+  outline-offset: 2px;
+}
+
+.btn:disabled,
+.btn--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── Variants ── */
+.btn--primary {
+  background-color: var(--color-accent-primary);
+  color: var(--color-bg-dark);
+}
+.btn--primary:hover {
+  background-color: var(--color-accent-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.btn--primary:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.btn--secondary {
+  background-color: transparent;
+  color: var(--color-text-primary);
+  border-color: var(--color-border-dark);
+}
+.btn--secondary:hover {
+  background-color: var(--color-bg-secondary);
+  border-color: var(--color-text-primary);
+}
+
+.btn--dark {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-inverse);
+}
+.btn--dark:hover {
+  background-color: var(--color-bg-darker);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--color-text-primary);
+}
+.btn--ghost:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.btn--accent {
+  background-color: var(--color-accent-secondary);
+  color: white;
+}
+.btn--accent:hover {
+  background-color: var(--color-accent-secondary-hover);
+  transform: translateY(-1px);
+}
+
+.btn--danger {
+  background-color: var(--color-error);
+  color: white;
+}
+.btn--danger:hover {
+  background-color: #C62828;
+  transform: translateY(-1px);
+}
+
+.btn--success {
+  background-color: var(--color-success);
+  color: white;
+}
+.btn--success:hover {
+  background-color: #388E3C;
+  transform: translateY(-1px);
+}
+
+.btn--link {
+  background: transparent;
+  color: var(--color-accent-primary);
+  padding: 0;
+  border: none;
+  font-weight: var(--font-weight-medium);
+}
+.btn--link:hover {
+  color: var(--color-accent-primary-hover);
+  text-decoration: underline;
+}
+
+/* ── Sizes ── */
+.btn--xs {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-xs);
+}
+
+.btn--sm {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-sm);
+}
+
+.btn--lg {
+  padding: var(--space-4) var(--space-8);
+  font-size: var(--font-size-base);
+}
+
+.btn--xl {
+  padding: var(--space-5) var(--space-10);
+  font-size: var(--font-size-md);
+}
+
+/* ── Full width ── */
+.btn--full {
+  width: 100%;
+}
+
+/* ── Icon-only ── */
+.btn--icon {
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+}
+
+.btn--icon.btn--sm {
+  padding: var(--space-1);
+}
+
+.btn--icon.btn--lg {
+  padding: var(--space-3);
+}
+
+/* ── Loading ── */
+.btn--loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.btn--loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-right-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  top: 50%;
+  left: 50%;
+  margin: -8px 0 0 -8px;
+}
+
+.btn--primary.btn--loading::after {
+  border-top-color: var(--color-bg-dark);
+  border-right-color: var(--color-bg-dark);
+}
+
+.btn--dark.btn--loading::after {
+  border-top-color: var(--color-text-inverse);
+  border-right-color: var(--color-text-inverse);
+}
+
+/* ── Button group ── */
+.btn-group {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.btn-group--center {
+  justify-content: center;
+}

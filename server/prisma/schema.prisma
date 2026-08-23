@@ -1,0 +1,388 @@
+// ============================================================
+// ELEVATE — Prisma Schema
+// Database: MySQL
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ── User ──────────────────────────────────────────────────────
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  phone         String?  @unique
+  password      String
+  firstName     String
+  lastName      String
+  role          Role     @default(USER)
+  avatar        String?
+  bio           String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Preferences (stored as JSON)
+  preferredStyles   String?  @db.Text  // JSON array
+  preferredColors   String?  @db.Text  // JSON array
+  primaryOccasion   String?
+  seasonFocus       String?
+  profileVisibility String   @default("private")
+  wardrobeVisibility String  @default("private")
+  emailNotifications Boolean @default(true)
+
+  status            String   @default("ACTIVE") // ACTIVE, SUSPENDED
+
+  // Relations
+  goals           Goal[]
+  tasks           Task[]
+  habits          Habit[]
+  skills          Skill[]
+  journalEntries  JournalEntry[]
+  savedStyles     SavedStyle[]
+  savedBrands     SavedBrand[]
+  wardrobeItems   WardrobeItem[]
+  outfits         Outfit[]
+  notifications   Notification[]
+  auditLogs       AuditLog[]
+  refreshTokens   RefreshToken[]
+  reportsFiled    Report[]       @relation("ReportedByUser")
+  reportsResolved Report[]       @relation("ReportResolvedBy")
+
+  @@index([email])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// ── Refresh Tokens ───────────────────────────────────────────
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique @db.VarChar(500)
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+// ── Personal Development ─────────────────────────────────────
+
+model Goal {
+  id          String     @id @default(uuid())
+  userId      String
+  title       String
+  description String?    @db.Text
+  deadline    DateTime?
+  priority    Priority   @default(MEDIUM)
+  progress    Int        @default(0)
+  status      GoalStatus @default(ACTIVE)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum GoalStatus {
+  ACTIVE
+  COMPLETED
+  PAUSED
+  CANCELLED
+}
+
+model Task {
+  id        String     @id @default(uuid())
+  userId    String
+  title     String
+  dueDate   DateTime?
+  priority  Priority   @default(MEDIUM)
+  status    TaskStatus @default(PENDING)
+  category  String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+}
+
+enum TaskStatus {
+  PENDING
+  COMPLETED
+}
+
+model Habit {
+  id            String   @id @default(uuid())
+  userId        String
+  title         String
+  frequency     String   @default("Daily") // Daily, Weekly, Monthly
+  currentStreak Int      @default(0)
+  bestStreak    Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  completions HabitCompletion[]
+
+  @@index([userId])
+}
+
+model HabitCompletion {
+  id          String   @id @default(uuid())
+  habitId     String
+  completedAt DateTime @default(now())
+
+  habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, completedAt])
+  @@index([habitId])
+}
+
+model Skill {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  level     String   @default("Beginner") // Beginner, Intermediate, Advanced, Expert
+  progress  Int      @default(0)
+  category  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  milestones SkillMilestone[]
+
+  @@index([userId])
+}
+
+model SkillMilestone {
+  id       String  @id @default(uuid())
+  skillId  String
+  name     String
+  achieved Boolean @default(false)
+
+  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@index([skillId])
+}
+
+model JournalEntry {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  content   String   @db.Text
+  mood      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// ── Fashion ──────────────────────────────────────────────────
+
+model FashionCategory {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  slug        String  @unique
+  image       String?
+  description String? @db.Text
+
+  styles Style[]
+}
+
+model Style {
+  id          String  @id @default(uuid())
+  name        String
+  slug        String  @unique
+  categoryId  String
+  image       String?
+  description String? @db.Text
+  tags        String? @db.Text // JSON array
+  season      String?
+  occasion    String?
+
+  category   FashionCategory @relation(fields: [categoryId], references: [id])
+  savedBy    SavedStyle[]
+
+  @@index([categoryId])
+  @@index([slug])
+}
+
+model SavedStyle {
+  id      String @id @default(uuid())
+  userId  String
+  styleId String
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  style Style @relation(fields: [styleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, styleId])
+  @@index([userId])
+}
+
+model Brand {
+  id           String  @id @default(uuid())
+  name         String  @unique
+  logo         String?
+  description  String? @db.Text
+  category     String?
+  priceSegment String?
+  styles       String? @db.Text // JSON array
+  website      String?
+  featured     Boolean @default(false)
+
+  savedBy SavedBrand[]
+}
+
+model SavedBrand {
+  id      String @id @default(uuid())
+  userId  String
+  brandId String
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, brandId])
+  @@index([userId])
+}
+
+// ── Moderation & Reports ─────────────────────────────────────
+
+model Report {
+  id               String       @id @default(uuid())
+  reporterId       String
+  reportedItemType String       // USER, STYLE, BRAND, OUTFIT, OTHER
+  reportedItemId   String
+  reportedItemName String?
+  reason           String
+  details          String?      @db.Text
+  status           ReportStatus @default(PENDING)
+  resolutionNotes  String?      @db.Text
+  resolvedById     String?
+  resolvedAt       DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  reporter   User  @relation("ReportedByUser", fields: [reporterId], references: [id], onDelete: Cascade)
+  resolvedBy User? @relation("ReportResolvedBy", fields: [resolvedById], references: [id], onDelete: SetNull)
+
+  @@index([reporterId])
+  @@index([status])
+  @@index([reportedItemType])
+}
+
+enum ReportStatus {
+  PENDING
+  RESOLVED
+  DISMISSED
+}
+
+// ── Wardrobe & Outfits ───────────────────────────────────────
+
+model WardrobeItem {
+  id          String  @id @default(uuid())
+  userId      String
+  name        String
+  image       String?
+  category    String  // Tops, Bottoms, Outerwear, Shoes, Accessories
+  subcategory String?
+  brand       String?
+  color       String?
+  size        String?
+  season      String  @default("All Season")
+  occasion    String  @default("Casual")
+  style       String?
+  favorite    Boolean @default(false)
+  notes       String? @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  outfitItems OutfitItem[]
+
+  @@index([userId])
+  @@index([category])
+}
+
+model Outfit {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  occasion  String?
+  season    String?
+  style     String?
+  favorite  Boolean  @default(false)
+  notes     String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items OutfitItem[]
+
+  @@index([userId])
+}
+
+model OutfitItem {
+  id             String @id @default(uuid())
+  outfitId       String
+  wardrobeItemId String
+  slot           String // top, bottom, shoes, outerwear, accessory
+
+  outfit       Outfit       @relation(fields: [outfitId], references: [id], onDelete: Cascade)
+  wardrobeItem WardrobeItem @relation(fields: [wardrobeItemId], references: [id], onDelete: Cascade)
+
+  @@unique([outfitId, slot])
+  @@index([outfitId])
+}
+
+// ── Notifications & Audit ────────────────────────────────────
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String   // goal, task, habit, account, security, outfit
+  text      String   @db.Text
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([read])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  details   String?  @db.Text
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([createdAt])
+}

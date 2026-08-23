@@ -1,0 +1,196 @@
+/* ============================================================
+   ELEVATE — Input Component Styles
+   ============================================================ */
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.input-group__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.input-group__label--required::after {
+  content: ' *';
+  color: var(--color-error);
+}
+
+.input-group__hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+.input-group__error {
+  font-size: var(--font-size-xs);
+  color: var(--color-error);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* ── Base Input ── */
+.input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  appearance: none;
+}
+
+.input:hover {
+  border-color: var(--color-border-dark);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-accent-primary);
+  box-shadow: 0 0 0 3px var(--color-accent-primary-light);
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.input:disabled {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-tertiary);
+  cursor: not-allowed;
+}
+
+/* ── Error state ── */
+.input--error {
+  border-color: var(--color-error);
+}
+
+.input--error:focus {
+  box-shadow: 0 0 0 3px var(--color-error-light);
+}
+
+/* ── Success state ── */
+.input--success {
+  border-color: var(--color-success);
+}
+
+/* ── Sizes ── */
+.input--sm {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+.input--lg {
+  padding: var(--space-4) var(--space-5);
+  font-size: var(--font-size-md);
+}
+
+/* ── With icon ── */
+.input-wrapper {
+  position: relative;
+}
+
+.input-wrapper .input {
+  padding-left: var(--space-10);
+}
+
+.input-wrapper__icon {
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+  display: flex;
+}
+
+.input-wrapper__suffix {
+  position: absolute;
+  right: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-tertiary);
+  display: flex;
+}
+
+/* ── Textarea ── */
+.textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* ── Select ── */
+.select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B6B6B' d='M6 8.825L1.175 4 2.238 2.938 6 6.7l3.763-3.763L10.825 4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-4) center;
+  padding-right: var(--space-10);
+}
+
+/* ── Checkbox & Radio ── */
+.checkbox-group,
+.radio-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+.checkbox-group input,
+.radio-group input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-accent-primary);
+  cursor: pointer;
+}
+
+.checkbox-group__label,
+.radio-group__label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  user-select: none;
+}
+
+/* ── Search Input ── */
+.search-input {
+  position: relative;
+}
+
+.search-input .input {
+  padding-left: var(--space-10);
+  padding-right: var(--space-10);
+  border-radius: var(--radius-full);
+}
+
+.search-input__icon {
+  position: absolute;
+  left: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+}
+
+.search-input__clear {
+  position: absolute;
+  right: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  padding: var(--space-1);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+}
+
+.search-input__clear:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+}

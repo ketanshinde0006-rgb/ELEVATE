@@ -1,0 +1,68 @@
+/* ============================================================
+   ELEVATE — Alert Component Styles
+   ============================================================ */
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+}
+
+.alert--info {
+  background-color: var(--color-info-light);
+  border: 1px solid rgba(33, 150, 243, 0.2);
+  color: #1565C0;
+}
+
+.alert--success {
+  background-color: var(--color-success-light);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  color: #2E7D32;
+}
+
+.alert--warning {
+  background-color: var(--color-warning-light);
+  border: 1px solid rgba(255, 152, 0, 0.2);
+  color: #E65100;
+}
+
+.alert--error {
+  background-color: var(--color-error-light);
+  border: 1px solid rgba(229, 57, 53, 0.2);
+  color: #C62828;
+}
+
+.alert__icon {
+  flex-shrink: 0;
+  font-size: var(--font-size-base);
+  margin-top: 1px;
+}
+
+.alert__content {
+  flex: 1;
+}
+
+.alert__title {
+  display: block;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-1);
+}
+
+.alert__message {
+  line-height: var(--line-height-relaxed);
+}
+
+.alert__dismiss {
+  flex-shrink: 0;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity var(--transition-fast);
+  padding: var(--space-1);
+}
+
+.alert__dismiss:hover {
+  opacity: 1;
+}

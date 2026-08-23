@@ -1,0 +1,686 @@
+/* ============================================================
+   ELEVATE — Editorial Personal Development Styles
+   ============================================================ */
+
+.editorial-pd {
+  background-color: var(--color-bg-primary);
+  min-height: calc(100vh - 72px);
+}
+
+/* ── Header ── */
+.pd-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-6);
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+/* ── Tab Navigation ── */
+.pd-tabs {
+  display: flex;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-6);
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.pd-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 10px 18px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-bottom: 2px solid transparent;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.pd-tab:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+}
+
+.pd-tab--active {
+  color: var(--color-accent-primary);
+  border-bottom-color: var(--color-accent-primary);
+  background: var(--color-bg-card);
+  font-weight: 600;
+}
+
+.pd-tab__icon {
+  flex-shrink: 0;
+}
+
+.pd-tab__label {
+  font-size: var(--font-size-sm);
+}
+
+/* ── Toolbar ── */
+.pd-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.pd-toolbar__search {
+  flex: 1;
+  min-width: 240px;
+  max-width: 460px;
+}
+
+.pd-toolbar__filters {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.pd-toolbar__filters .input-group,
+.pd-toolbar__filters .select-group {
+  margin-bottom: 0;
+  min-width: 160px;
+}
+
+.pd-icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.4;
+  transition: opacity var(--transition-fast);
+  padding: 4px;
+  font-size: 13px;
+}
+
+.pd-icon-btn:hover {
+  opacity: 1;
+}
+
+/* ── Goals Stack ── */
+.pd-goals-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.pd-goal-strip {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  transition: border-color var(--transition-fast);
+}
+
+.pd-goal-strip:hover {
+  border-color: var(--color-accent-primary);
+}
+
+.pd-goal-strip__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.pd-goal-strip__title-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.pd-goal-priority-tag {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.pd-goal-priority-tag--high { background: var(--color-error-light); color: var(--color-error); }
+.pd-goal-priority-tag--medium { background: var(--color-warning-light); color: var(--color-warning); }
+.pd-goal-priority-tag--low { background: var(--color-info-light); color: var(--color-info); }
+
+.pd-goal-strip__title {
+  font-family: var(--font-family-serif);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.pd-goal-strip__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.pd-goal-strip__desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-4);
+  line-height: var(--line-height-normal);
+}
+
+.pd-goal-strip__progress-area {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.pd-goal-strip__progress-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.pd-goal-strip__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent-primary), var(--color-accent-primary-hover));
+  border-radius: var(--radius-full);
+  transition: width var(--transition-base);
+}
+
+.pd-goal-strip__pct {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-accent-primary);
+  min-width: 40px;
+  text-align: right;
+}
+
+.pd-goal-strip__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-light);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.pd-goal-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.pd-goal-slider-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.pd-range-slider {
+  accent-color: var(--color-accent-primary);
+  width: 140px;
+  cursor: pointer;
+}
+
+.pd-goal-deadline {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+/* ── Tasks Checklist ── */
+.pd-tasks-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.pd-task-group__heading {
+  font-family: var(--font-family-serif);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin-bottom: var(--space-3);
+  color: var(--color-text-primary);
+}
+
+.pd-task-group__heading--done {
+  color: var(--color-text-tertiary);
+}
+
+.pd-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.pd-task-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.pd-task-row:hover {
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-xs);
+}
+
+.pd-task-row--done {
+  opacity: 0.6;
+}
+
+.pd-task-row--done .pd-task-row__title {
+  text-decoration: line-through;
+  color: var(--color-text-tertiary);
+}
+
+.pd-task-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--color-border-dark);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: transparent;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.pd-task-checkbox:hover {
+  border-color: var(--color-accent-primary);
+}
+
+.pd-task-checkbox--checked {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: #FFFFFF;
+}
+
+.pd-task-row__body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.pd-task-row__title {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.pd-task-row__tags {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.pd-category-chip {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+}
+
+.pd-task-due-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+/* ── Habits Board ── */
+.pd-habits-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-5);
+}
+
+.pd-habit-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.pd-habit-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-4);
+}
+
+.pd-habit-freq {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-accent-primary);
+  font-weight: 700;
+}
+
+.pd-habit-title {
+  font-family: var(--font-family-serif);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-top: 2px;
+}
+
+.pd-habit-days-row {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border-light);
+  margin-bottom: var(--space-4);
+}
+
+.pd-habit-day-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.pd-habit-day-label {
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+}
+
+.pd-habit-day-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-secondary);
+}
+
+.pd-habit-day-dot--done {
+  background: var(--color-accent-primary);
+}
+
+.pd-habit-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pd-habit-streak-display {
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-habit-streak-num {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--color-warning);
+}
+
+.pd-habit-streak-lbl {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+}
+
+.pd-habit-check-btn {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-dark);
+  background: transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.pd-habit-check-btn:hover {
+  background: var(--color-bg-secondary);
+}
+
+.pd-habit-check-btn--done {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: #FFFFFF;
+}
+
+/* ── Skills Grid ── */
+.pd-skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-5);
+}
+
+.pd-skill-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+
+.pd-skill-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-3);
+}
+
+.pd-skill-title {
+  font-family: var(--font-family-serif);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.pd-skill-progress-bar {
+  height: 6px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-top: var(--space-2);
+}
+
+.pd-skill-progress-fill {
+  height: 100%;
+  background: var(--color-accent-secondary);
+  border-radius: var(--radius-full);
+}
+
+.pd-skill-pct-label {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+}
+
+.pd-milestones-tray {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-light);
+}
+
+.pd-milestones-tray-lbl {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+  margin-bottom: var(--space-2);
+}
+
+.pd-milestones-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.pd-milestone-pill {
+  font-size: var(--font-size-xs);
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.pd-milestone-pill--achieved {
+  background: var(--color-success-light);
+  border-color: var(--color-success);
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+/* ── Split Journal Workspace ── */
+.pd-journal-workspace {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  min-height: 480px;
+  overflow: hidden;
+}
+
+.pd-journal-sidebar {
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-journal-sidebar__header {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pd-journal-sidebar__title {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+}
+
+.pd-journal-sidebar__list {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.pd-journal-item-btn {
+  width: 100%;
+  text-align: left;
+  padding: var(--space-4);
+  border: none;
+  background: transparent;
+  border-bottom: 1px solid var(--color-border-light);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.pd-journal-item-btn:hover {
+  background: var(--color-bg-secondary);
+}
+
+.pd-journal-item-btn--active {
+  background: var(--color-bg-secondary);
+  border-left: 3px solid var(--color-accent-primary);
+}
+
+.pd-journal-item-btn__top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.pd-journal-item-btn__date {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+}
+
+.pd-journal-item-btn__title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.pd-journal-editor-area {
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-journal-reader__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.pd-journal-reader__date {
+  font-size: var(--font-size-xs);
+  color: var(--color-accent-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+
+.pd-journal-reader__title {
+  font-family: var(--font-family-serif);
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  margin-top: var(--space-2);
+}
+
+.pd-journal-reader__content {
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-secondary);
+  white-space: pre-wrap;
+}
+
+.pd-journal-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.pd-journal-form__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pd-journal-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+@media (max-width: 768px) {
+  .pd-journal-workspace { grid-template-columns: 1fr; }
+  .pd-journal-sidebar { border-right: none; border-bottom: 1px solid var(--color-border); }
+}

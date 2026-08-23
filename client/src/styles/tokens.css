@@ -1,0 +1,165 @@
+/* ============================================================
+   ELEVATE — Design Tokens
+   Centralized design system variables
+   ============================================================ */
+
+:root {
+  /* ── Colors ── */
+  --color-bg-primary: #FAF8F5;
+  --color-bg-secondary: #F4EFEA;
+  --color-bg-tertiary: #EBE4DA;
+  --color-bg-dark: #161514;
+  --color-bg-darker: #0E0D0C;
+  --color-bg-card: #FFFFFF;
+  --color-bg-card-hover: #FCFAF7;
+  --color-bg-overlay: rgba(20, 19, 18, 0.65);
+
+  --color-text-primary: #161514;
+  --color-text-secondary: #635E57;
+  --color-text-tertiary: #968F85;
+  --color-text-inverse: #FAF8F5;
+  --color-text-muted: #B5ADA1;
+
+  --color-accent-primary: #C5A880;
+  --color-accent-primary-hover: #B29267;
+  --color-accent-primary-light: rgba(197, 168, 128, 0.12);
+  --color-accent-primary-medium: rgba(197, 168, 128, 0.24);
+  --color-accent-secondary: #9B8EA9;
+  --color-accent-secondary-hover: #867697;
+  --color-accent-secondary-light: rgba(155, 142, 169, 0.14);
+
+  --color-success: #3E885B;
+  --color-success-light: rgba(62, 136, 91, 0.12);
+  --color-warning: #D9822B;
+  --color-warning-light: rgba(217, 130, 43, 0.12);
+  --color-error: #C94A4A;
+  --color-error-light: rgba(201, 74, 74, 0.12);
+  --color-info: #4A7C9D;
+  --color-info-light: rgba(74, 124, 157, 0.12);
+
+  --color-border: #E8E2D8;
+  --color-border-light: #F2EDE4;
+  --color-border-dark: #D4CCC0;
+  --color-border-focus: var(--color-accent-primary);
+
+  /* ── Typography ── */
+  --font-family-primary: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-heading: 'Cormorant Garamond', Georgia, serif;
+  --font-family-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --font-size-xs: 0.75rem;     /* 12px */
+  --font-size-sm: 0.875rem;    /* 14px */
+  --font-size-base: 1rem;      /* 16px */
+  --font-size-md: 1.125rem;    /* 18px */
+  --font-size-lg: 1.25rem;     /* 20px */
+  --font-size-xl: 1.5rem;      /* 24px */
+  --font-size-2xl: 1.75rem;    /* 28px */
+  --font-size-3xl: 2.25rem;    /* 36px */
+  --font-size-4xl: 3rem;       /* 48px */
+  --font-size-5xl: 3.75rem;    /* 60px */
+
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  --line-height-tight: 1.2;
+  --line-height-snug: 1.35;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.65;
+  --line-height-loose: 1.8;
+
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;
+  --letter-spacing-wider: 0.05em;
+  --letter-spacing-widest: 0.1em;
+
+  /* ── Spacing (8-point grid) ── */
+  --space-0: 0;
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+  --space-24: 6rem;     /* 96px */
+  --space-32: 8rem;     /* 128px */
+
+  /* ── Layout ── */
+  --container-max-width: 1280px;
+  --container-wide: 1440px;
+  --container-narrow: 800px;
+  --container-padding: var(--space-6);
+  --section-spacing: var(--space-20);
+  --grid-gap: var(--space-6);
+
+  /* ── Border Radius ── */
+  --radius-none: 0;
+  --radius-sm: 0.25rem;    /* 4px */
+  --radius-md: 0.5rem;     /* 8px */
+  --radius-lg: 0.75rem;    /* 12px */
+  --radius-xl: 1rem;       /* 16px */
+  --radius-2xl: 1.5rem;    /* 24px */
+  --radius-full: 9999px;
+
+  /* ── Shadows ── */
+  --shadow-xs: 0 1px 2px rgba(26, 26, 26, 0.04);
+  --shadow-sm: 0 1px 3px rgba(26, 26, 26, 0.06), 0 1px 2px rgba(26, 26, 26, 0.04);
+  --shadow-md: 0 4px 6px rgba(26, 26, 26, 0.06), 0 2px 4px rgba(26, 26, 26, 0.04);
+  --shadow-lg: 0 10px 15px rgba(26, 26, 26, 0.06), 0 4px 6px rgba(26, 26, 26, 0.04);
+  --shadow-xl: 0 20px 25px rgba(26, 26, 26, 0.08), 0 8px 10px rgba(26, 26, 26, 0.04);
+  --shadow-2xl: 0 25px 50px rgba(26, 26, 26, 0.12);
+  --shadow-inner: inset 0 2px 4px rgba(26, 26, 26, 0.04);
+  --shadow-glow: 0 0 20px rgba(201, 169, 110, 0.15);
+  --shadow-card: 0 2px 8px rgba(26, 26, 26, 0.06);
+  --shadow-card-hover: 0 8px 24px rgba(26, 26, 26, 0.1);
+
+  /* ── Transitions ── */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 350ms ease;
+  --transition-slower: 500ms ease;
+  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Z-index ── */
+  --z-below: -1;
+  --z-base: 0;
+  --z-above: 1;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-navbar: 300;
+  --z-overlay: 400;
+  --z-modal: 500;
+  --z-toast: 600;
+  --z-tooltip: 700;
+  --z-max: 9999;
+
+  /* ── Breakpoints (reference only — use in media queries) ── */
+  /* --bp-xs: 320px;  */
+  /* --bp-sm: 375px;  */
+  /* --bp-md: 768px;  */
+  /* --bp-lg: 1024px; */
+  /* --bp-xl: 1280px; */
+  /* --bp-2xl: 1440px; */
+  /* --bp-3xl: 1920px; */
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-fast: 0ms;
+    --transition-base: 0ms;
+    --transition-slow: 0ms;
+    --transition-slower: 0ms;
+    --transition-spring: 0ms;
+  }
+}
