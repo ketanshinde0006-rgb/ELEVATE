@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/api/:match*",
+      "destination": "https://lovely-plums-arrive.loca.lt/api/:match*"
+    },
+    {
+      "source": "/uploads/:match*",
+      "destination": "https://lovely-plums-arrive.loca.lt/uploads/:match*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
