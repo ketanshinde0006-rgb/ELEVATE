@@ -46,25 +46,12 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, curl, server-to-server)
-    if (!origin) return callback(null, true);
-
-    const allowed = [
-      env.CLIENT_URL,
-      'http://localhost:5173',
-      'http://localhost:3000',
-    ].filter(Boolean);
-
-    if (allowed.includes(origin) || origin.endsWith('.vercel.app') || origin.endsWith('.loca.lt')) {
-      return callback(null, true);
-    }
-    return callback(null, true); // Permissive in production to prevent user lockouts
-  },
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
 }));
+app.options('*', cors());
 
 // ── Rate Limiting ──
 const limiter = rateLimit({
