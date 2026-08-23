@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "node --watch src/index.js",
-    "start": "node src/index.js",
+    "start": "npx prisma db push && node prisma/seed.js && node src/index.js",
+    "start:server": "node src/index.js",
     "test": "node --test test/server.test.js",
     "lint": "echo \"No linter configured yet\"",
     "db:migrate": "npx prisma migrate dev",
