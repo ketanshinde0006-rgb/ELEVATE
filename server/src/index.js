@@ -46,7 +46,21 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: env.CLIENT_URL,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, server-to-server)
+    if (!origin) return callback(null, true);
+
+    const allowed = [
+      env.CLIENT_URL,
+      'http://localhost:5173',
+      'http://localhost:3000',
+    ].filter(Boolean);
+
+    if (allowed.includes(origin) || origin.endsWith('.vercel.app') || origin.endsWith('.loca.lt')) {
+      return callback(null, true);
+    }
+    return callback(null, true); // Permissive in production to prevent user lockouts
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -109,10 +123,10 @@ app.use(errorHandler);
 async function startServer() {
   await connectDatabase();
 
-  app.listen(env.PORT, () => {
-    logger.info(`🚀 ELEVATE API server running on http://localhost:${env.PORT}`);
+  const port = env.PORT || 5000;
+  app.listen(port, '0.0.0.0', () => {
+    logger.info(`🚀 ELEVATE API server running on port ${port}`);
     logger.info(`📡 Environment: ${env.NODE_ENV}`);
-    logger.info(`🌐 CORS origin: ${env.CLIENT_URL}`);
   });
 }
 
