@@ -121,18 +121,26 @@ app.use(errorHandler);
 
 // ── Start Server ──
 async function startServer() {
-  await connectDatabase();
-
-  const port = env.PORT || 5000;
-  app.listen(port, '0.0.0.0', () => {
+  const port = process.env.PORT || env.PORT || 5000;
+  
+  const server = app.listen(port, '0.0.0.0', () => {
+    console.log(`🚀 ELEVATE API server running on port ${port} (0.0.0.0)`);
     logger.info(`🚀 ELEVATE API server running on port ${port}`);
     logger.info(`📡 Environment: ${env.NODE_ENV}`);
   });
+
+  try {
+    await connectDatabase();
+  } catch (error) {
+    logger.error('Database connection notice:', error.message);
+  }
+
+  return server;
 }
 
 startServer().catch((error) => {
+  console.error('Failed to start server:', error);
   logger.error('Failed to start server:', error);
-  process.exit(1);
 });
 
 export default app;
