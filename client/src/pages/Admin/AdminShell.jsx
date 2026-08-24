@@ -17,6 +17,7 @@ import {
   Shield,
   ExternalLink,
   LogOut,
+  UserCheck,
 } from 'lucide-react';
 import './AdminShell.css';
 
@@ -54,6 +55,7 @@ const NAV_SECTIONS = [
     items: [
       { to: '/admin/audit', label: 'Audit Logs', icon: ScrollText },
       { to: '/admin/system', label: 'System Health', icon: Server },
+      { to: '/admin/profile', label: 'Admin Account', icon: UserCheck },
     ],
   },
 ];
@@ -71,6 +73,7 @@ function getBreadcrumb(pathname, search) {
   if (pathname === '/admin/analytics') return { section: 'Insights', current: 'Analytics' };
   if (pathname === '/admin/audit') return { section: 'System', current: 'Audit Logs' };
   if (pathname === '/admin/system') return { section: 'System', current: 'System Health' };
+  if (pathname === '/admin/profile') return { section: 'System', current: 'Admin Account & Security' };
   return { section: 'Admin', current: 'Console' };
 }
 
@@ -144,9 +147,14 @@ function AdminShell() {
           ))}
         </nav>
 
-        {/* Admin User Footer */}
+        {/* Admin User Footer — Click through to Admin Account */}
         <div className="admin-sidebar__footer">
-          <div className="admin-sidebar__user">
+          <div
+            className="admin-sidebar__user"
+            onClick={() => { setSidebarOpen(false); navigate('/admin/profile'); }}
+            style={{ cursor: 'pointer' }}
+            title="Open Admin Account & Security"
+          >
             <div className="admin-sidebar__avatar">
               {user?.firstName?.charAt(0) || 'A'}
             </div>
@@ -158,7 +166,10 @@ function AdminShell() {
             </div>
             <button
               className="admin-sidebar__logout-btn"
-              onClick={handleLogout}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLogout();
+              }}
               title="Sign Out"
               aria-label="Sign Out"
             >

@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
-import Navbar from './components/layout/Navbar';
-import Footer from './components/layout/Footer';
+import Navbar from './components/layout/Navbar/Navbar';
+import Footer from './components/layout/Footer/Footer';
 import Spinner from './components/ui/Spinner';
 
 /* ── Public & User Pages ── */
@@ -35,9 +35,10 @@ import ModerationQueue from './pages/Admin/ModerationQueue';
 import Analytics from './pages/Admin/Analytics';
 import AuditLog from './pages/Admin/AuditLog';
 import SystemHealth from './pages/Admin/SystemHealth';
+import AdminAccount from './pages/Admin/AdminAccount';
 
-/* ── Protected Route Guard ── */
-function ProtectedRoute({ children, adminOnly = false }) {
+/* ── 1. User Workspace Route Guard (Strict User-Only) ── */
+function UserWorkspaceRoute({ children }) {
   const { isAuthenticated, isAdmin, loading } = useAuth();
 
   if (loading) {
@@ -52,16 +53,40 @@ function ProtectedRoute({ children, adminOnly = false }) {
     return <Navigate to="/login" replace />;
   }
 
-  if (adminOnly && !isAdmin) {
+  // Admins must never enter User lifestyle workspace
+  if (isAdmin) {
+    return <Navigate to="/admin" replace />;
+  }
+
+  return children;
+}
+
+/* ── 2. Admin Route Guard (Strict Admin-Only) ── */
+function AdminRoute({ children }) {
+  const { isAuthenticated, isAdmin, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!isAdmin) {
     return <Navigate to="/dashboard" replace />;
   }
 
   return children;
 }
 
-/* ── Guest-only Route Guard ── */
+/* ── 3. Guest Route Guard ── */
 function GuestRoute({ children }) {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, isAdmin, loading } = useAuth();
 
   if (loading) {
     return (
@@ -72,13 +97,13 @@ function GuestRoute({ children }) {
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={isAdmin ? '/admin' : '/dashboard'} replace />;
   }
 
   return children;
 }
 
-/* ── Public Layout Shell (Public Navbar + Footer) ── */
+/* ── 4. Public Layout Shell (Public Navbar + Footer) ── */
 function PublicLayout() {
   return (
     <div className="app-layout">
@@ -95,35 +120,42 @@ function PublicLayout() {
 function App() {
   return (
     <Routes>
-      {/* Public & Customer Routes — uses PublicLayout with Navbar & Footer */}
+      {/* ── Public & User Routes ── */}
       <Route element={<PublicLayout />}>
+        {/* Public Discovery / Content (Accessible to all including Admin Preview) */}
         <Route path="/" element={<HomePage />} />
+        <Route path="/fashion" element={<FashionPage />} />
+        <Route path="/brands" element={<BrandsPage />} />
+        <Route path="/community" element={<CommunityPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/auth/magic-link" element={<MagicLinkCallbackPage />} />
+
+        {/* Guest Authentication Pages */}
         <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
         <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
         <Route path="/forgot-password" element={<GuestRoute><ForgotPasswordPage /></GuestRoute>} />
         <Route path="/reset-password" element={<GuestRoute><ResetPasswordPage /></GuestRoute>} />
-        <Route path="/verify-email" element={<VerifyEmailPage />} />
-        <Route path="/auth/magic-link" element={<MagicLinkCallbackPage />} />
-        <Route path="/personal-development" element={<ProtectedRoute><PersonalDevPage /></ProtectedRoute>} />
-        <Route path="/fashion" element={<FashionPage />} />
-        <Route path="/brands" element={<BrandsPage />} />
-        <Route path="/wardrobe" element={<ProtectedRoute><WardrobePage /></ProtectedRoute>} />
-        <Route path="/outfits" element={<ProtectedRoute><OutfitsPage /></ProtectedRoute>} />
-        <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-        <Route path="/recommendations" element={<ProtectedRoute><RecommendationsPage /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-        <Route path="/community" element={<CommunityPage />} />
-        <Route path="/about" element={<AboutPage />} />
+
+        {/* User-Only Personal Lifestyle Workspace */}
+        <Route path="/dashboard" element={<UserWorkspaceRoute><DashboardPage /></UserWorkspaceRoute>} />
+        <Route path="/personal-development" element={<UserWorkspaceRoute><PersonalDevPage /></UserWorkspaceRoute>} />
+        <Route path="/wardrobe" element={<UserWorkspaceRoute><WardrobePage /></UserWorkspaceRoute>} />
+        <Route path="/outfits" element={<UserWorkspaceRoute><OutfitsPage /></UserWorkspaceRoute>} />
+        <Route path="/recommendations" element={<UserWorkspaceRoute><RecommendationsPage /></UserWorkspaceRoute>} />
+        <Route path="/profile" element={<UserWorkspaceRoute><ProfilePage /></UserWorkspaceRoute>} />
+
+        {/* 404 Fallback */}
         <Route path="*" element={<NotFoundPage />} />
       </Route>
 
-      {/* Admin Operations Command Center — FULLY ISOLATED SHELL (No Public Navbar/Footer) */}
+      {/* ── Admin Operations Command Center (Fully Isolated Shell) ── */}
       <Route
         path="/admin"
         element={
-          <ProtectedRoute adminOnly>
+          <AdminRoute>
             <AdminShell />
-          </ProtectedRoute>
+          </AdminRoute>
         }
       >
         <Route index element={<CommandCenter />} />
@@ -135,6 +167,7 @@ function App() {
         <Route path="analytics" element={<Analytics />} />
         <Route path="audit" element={<AuditLog />} />
         <Route path="system" element={<SystemHealth />} />
+        <Route path="profile" element={<AdminAccount />} />
       </Route>
     </Routes>
   );

@@ -238,12 +238,49 @@ describe('Complete Multi-Authentication Integration Test Suite', () => {
     assert.ok(revokeRes.success);
   });
 
-  test('10. Admin Authentication & Role Protection', async () => {
+  test('10. Admin Authentication & Role Protection: Social/OTP bypass rejected with 403', async () => {
     const adminLogin = await loginUser({
       email: 'admin@elevate.local',
       password: 'Admin123!',
     });
     assert.equal(adminLogin.user.role, 'ADMIN');
+
+    // Admin cannot use Email OTP
+    await assert.rejects(
+      async () => {
+        // Create token for admin email
+        const tokenHash = (await import('../src/utils/crypto.js')).hashToken('123456');
+        await prisma.verificationToken.create({
+          data: {
+            identifier: 'admin@elevate.local',
+            type: 'EMAIL_OTP',
+            tokenHash,
+            expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+          },
+        });
+        await verifyEmailOtpAndAuthenticate({ email: 'admin@elevate.local', otp: '123456' });
+      },
+      (err) => {
+        assert.equal(err.statusCode, 403);
+        assert.match(err.message, /Administrator accounts must sign in using/i);
+        return true;
+      }
+    );
+
+    // Public registration always enforces role: USER
+    const testReg = await registerUser({
+      email: `user.role.test.${timestamp}@domain.com`,
+      password: 'UserPassword123!',
+      firstName: 'RegUser',
+      role: 'ADMIN', // Client-supplied role must be ignored
+    });
+    assert.equal(testReg.user.role, 'USER', 'Registration must strictly produce role === USER');
+
+    // Cleanup test user
+    await prisma.authIdentity.deleteMany({ where: { userId: testReg.user.id } });
+    await prisma.verificationToken.deleteMany({ where: { userId: testReg.user.id } });
+    await prisma.session.deleteMany({ where: { userId: testReg.user.id } });
+    await prisma.user.delete({ where: { id: testReg.user.id } });
 
     const adminUsers = await getUsers({ page: 1, limit: 10 });
     assert.ok(adminUsers.users.length > 0);

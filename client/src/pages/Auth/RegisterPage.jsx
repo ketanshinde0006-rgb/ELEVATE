@@ -82,7 +82,7 @@ function RegisterPage() {
         email: form.email.trim(),
         password: form.password,
       });
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       setServerError(err.message || 'Registration failed. Please try again.');
     } finally {
@@ -95,7 +95,7 @@ function RegisterPage() {
     setGoogleModalOpen(false);
     try {
       await loginWithGoogle({ credential });
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       setServerError(err.message || 'Google signup failed.');
     } finally {
@@ -108,7 +108,7 @@ function RegisterPage() {
     setAppleModalOpen(false);
     try {
       await loginWithApple(payload);
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       setServerError(err.message || 'Apple signup failed.');
     } finally {
@@ -121,7 +121,7 @@ function RegisterPage() {
     setMicrosoftModalOpen(false);
     try {
       await loginWithMicrosoft(payload);
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       setServerError(err.message || 'Microsoft signup failed.');
     } finally {

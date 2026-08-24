@@ -620,10 +620,16 @@ export async function verifyMobileOtpAndAuthenticate({ phone, code }, reqMeta = 
 
   if (existingIdentity) {
     user = existingIdentity.user;
+    if (user.role === 'ADMIN') {
+      throw new AppError('Administrator accounts must sign in using the administrator email/password flow.', 403);
+    }
   } else {
     // Check if user exists with this phone
     user = await prisma.user.findUnique({ where: { phone: e164 } });
     if (user) {
+      if (user.role === 'ADMIN') {
+        throw new AppError('Administrator accounts must sign in using the administrator email/password flow.', 403);
+      }
       await prisma.authIdentity.create({
         data: {
           userId: user.id,
@@ -744,6 +750,9 @@ export async function verifyEmailOtpAndAuthenticate({ email, otp }, reqMeta = {}
 
   let user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
   if (user) {
+    if (user.role === 'ADMIN') {
+      throw new AppError('Administrator accounts must sign in using the administrator email/password flow.', 403);
+    }
     if (user.status === 'SUSPENDED') throw new AppError('Account is suspended', 403);
     if (!user.emailVerified) {
       await prisma.user.update({ where: { id: user.id }, data: { emailVerified: true } });
@@ -850,6 +859,9 @@ export async function verifyMagicLink({ token, email }, reqMeta = {}) {
 
   let user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
   if (user) {
+    if (user.role === 'ADMIN') {
+      throw new AppError('Administrator accounts must sign in using the administrator email/password flow.', 403);
+    }
     if (user.status === 'SUSPENDED') throw new AppError('Account is suspended', 403);
     if (!user.emailVerified) {
       await prisma.user.update({ where: { id: user.id }, data: { emailVerified: true } });

@@ -88,7 +88,12 @@ function LoginPage() {
       setTempMfaToken(res.tempToken);
       setMfaModalOpen(true);
     } else {
-      navigate('/dashboard');
+      const userRole = res?.role || res?.user?.role;
+      if (userRole === 'ADMIN') {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
     }
   };
 
@@ -234,7 +239,11 @@ function LoginPage() {
   const handleMfaSuccess = async ({ tempToken, code }) => {
     const res = await verifyMfa({ tempToken, code });
     setMfaModalOpen(false);
-    navigate('/dashboard');
+    if (res?.role === 'ADMIN' || res?.user?.role === 'ADMIN') {
+      navigate('/admin', { replace: true });
+    } else {
+      navigate('/dashboard', { replace: true });
+    }
   };
 
   return (

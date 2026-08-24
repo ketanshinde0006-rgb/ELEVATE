@@ -31,7 +31,8 @@ export function MagicLinkCallbackPage() {
           setTempMfaToken(res.tempToken);
           setMfaModalOpen(true);
         } else {
-          navigate('/dashboard');
+          const userRole = res?.role || res?.user?.role;
+          navigate(userRole === 'ADMIN' ? '/admin' : '/dashboard', { replace: true });
         }
       } catch (err) {
         setError(err.message || 'Magic Link is invalid or has expired.');
@@ -44,9 +45,10 @@ export function MagicLinkCallbackPage() {
   }, [token, email, loginWithMagicLinkVerify, navigate]);
 
   const handleMfaSuccess = async ({ tempToken, code }) => {
-    await verifyMfa({ tempToken, code });
+    const res = await verifyMfa({ tempToken, code });
     setMfaModalOpen(false);
-    navigate('/dashboard');
+    const userRole = res?.role || res?.user?.role;
+    navigate(userRole === 'ADMIN' ? '/admin' : '/dashboard', { replace: true });
   };
 
   return (

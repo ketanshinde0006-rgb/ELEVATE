@@ -271,38 +271,60 @@ function Navbar() {
                 {isAuthenticated ? (
                   <>
                     <div className="navbar__user-info">
-                      <span className="navbar__user-full-name">{user?.firstName} {user?.lastName}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+                        <span className="navbar__user-full-name">{user?.firstName} {user?.lastName}</span>
+                        {isAdmin && (
+                          <span style={{ fontSize: '10px', background: 'rgba(197, 168, 128, 0.2)', color: 'var(--color-accent-primary)', padding: '1px 6px', borderRadius: 4, fontWeight: 700, letterSpacing: '0.05em' }}>
+                            ADMIN
+                          </span>
+                        )}
+                      </div>
                       <span className="navbar__user-email">{user?.email}</span>
                     </div>
                     <hr className="navbar__dropdown-divider" />
-                    <Link to="/dashboard" className="navbar__dropdown-item">
-                      <span className="navbar__dropdown-icon-box">
-                        <LayoutDashboard size={15} strokeWidth={1.8} />
-                      </span>
-                      <span className="navbar__dropdown-text">Dashboard</span>
-                    </Link>
-                    <Link to="/profile" className="navbar__dropdown-item">
-                      <span className="navbar__dropdown-icon-box">
-                        <User size={15} strokeWidth={1.8} />
-                      </span>
-                      <span className="navbar__dropdown-text">Profile & Settings</span>
-                    </Link>
-                    <Link to="/recommendations" className="navbar__dropdown-item">
-                      <span className="navbar__dropdown-icon-box">
-                        <Lightbulb size={15} strokeWidth={1.8} />
-                      </span>
-                      <span className="navbar__dropdown-text">Recommendations</span>
-                    </Link>
-                    {isAdmin && (
-                      <Link to="/admin" className="navbar__dropdown-item navbar__dropdown-item--admin">
-                        <span className="navbar__dropdown-icon-box">
-                          <ShieldCheck size={15} strokeWidth={1.8} />
-                        </span>
-                        <span className="navbar__dropdown-text">Admin Console</span>
-                      </Link>
+
+                    {isAdmin ? (
+                      /* Admin Specific Navigation */
+                      <>
+                        <Link to="/admin" className="navbar__dropdown-item navbar__dropdown-item--admin" onClick={() => setUserMenuOpen(false)}>
+                          <span className="navbar__dropdown-icon-box">
+                            <ShieldCheck size={15} strokeWidth={1.8} />
+                          </span>
+                          <span className="navbar__dropdown-text">Operations Command</span>
+                        </Link>
+                        <Link to="/admin/profile" className="navbar__dropdown-item" onClick={() => setUserMenuOpen(false)}>
+                          <span className="navbar__dropdown-icon-box">
+                            <User size={15} strokeWidth={1.8} />
+                          </span>
+                          <span className="navbar__dropdown-text">Admin Account & Security</span>
+                        </Link>
+                      </>
+                    ) : (
+                      /* Normal User Lifestyle Navigation */
+                      <>
+                        <Link to="/dashboard" className="navbar__dropdown-item" onClick={() => setUserMenuOpen(false)}>
+                          <span className="navbar__dropdown-icon-box">
+                            <LayoutDashboard size={15} strokeWidth={1.8} />
+                          </span>
+                          <span className="navbar__dropdown-text">Dashboard</span>
+                        </Link>
+                        <Link to="/profile" className="navbar__dropdown-item" onClick={() => setUserMenuOpen(false)}>
+                          <span className="navbar__dropdown-icon-box">
+                            <User size={15} strokeWidth={1.8} />
+                          </span>
+                          <span className="navbar__dropdown-text">Profile & Settings</span>
+                        </Link>
+                        <Link to="/recommendations" className="navbar__dropdown-item" onClick={() => setUserMenuOpen(false)}>
+                          <span className="navbar__dropdown-icon-box">
+                            <Lightbulb size={15} strokeWidth={1.8} />
+                          </span>
+                          <span className="navbar__dropdown-text">Recommendations</span>
+                        </Link>
+                      </>
                     )}
+
                     <hr className="navbar__dropdown-divider" />
-                    <button className="navbar__dropdown-item navbar__dropdown-item--danger" onClick={handleLogout}>
+                    <button className="navbar__dropdown-item navbar__dropdown-item--danger" onClick={() => { setUserMenuOpen(false); handleLogout(); }}>
                       <span className="navbar__dropdown-icon-box">
                         <LogOut size={15} strokeWidth={1.8} />
                       </span>
