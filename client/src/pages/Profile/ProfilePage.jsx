@@ -20,6 +20,8 @@ import {
   Unlink,
   QrCode,
   ShieldAlert,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
@@ -55,6 +57,9 @@ function ProfilePage() {
     newPassword: '',
     confirmPassword: '',
   });
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [editing, setEditing] = useState(false);
   const [activeSection, setActiveSection] = useState('profile');
@@ -699,30 +704,60 @@ function ProfilePage() {
                         <Input
                           label="Current Password"
                           name="currentPassword"
-                          type="password"
+                          type={showCurrentPassword ? 'text' : 'password'}
                           placeholder="Enter current password"
                           value={passwordForm.currentPassword}
                           onChange={handlePasswordChange}
                           required
+                          suffix={
+                            <button
+                              type="button"
+                              onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-tertiary)', padding: 4, display: 'flex', alignItems: 'center' }}
+                              title={showCurrentPassword ? 'Hide password' : 'Show password'}
+                            >
+                              {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
+                          }
                         />
                       )}
                       <Input
                         label={user?.hasPassword === false ? 'Create Password' : 'New Password'}
                         name="newPassword"
-                        type="password"
+                        type={showNewPassword ? 'text' : 'password'}
                         placeholder="Enter password (min 8 chars)"
                         value={passwordForm.newPassword}
                         onChange={handlePasswordChange}
                         required
+                        suffix={
+                          <button
+                            type="button"
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-tertiary)', padding: 4, display: 'flex', alignItems: 'center' }}
+                            title={showNewPassword ? 'Hide password' : 'Show password'}
+                          >
+                            {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                        }
                       />
                       <Input
                         label={user?.hasPassword === false ? 'Confirm Password' : 'Confirm New Password'}
                         name="confirmPassword"
-                        type="password"
+                        type={showConfirmPassword ? 'text' : 'password'}
                         placeholder="Confirm password"
                         value={passwordForm.confirmPassword}
                         onChange={handlePasswordChange}
                         required
+                        suffix={
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-tertiary)', padding: 4, display: 'flex', alignItems: 'center' }}
+                            title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                          >
+                            {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                        }
                       />
                       <Button type="submit" variant="primary" loading={saving}>
                         {user?.hasPassword === false ? 'Set Password' : 'Change Password'}
