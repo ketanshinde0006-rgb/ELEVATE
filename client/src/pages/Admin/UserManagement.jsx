@@ -216,6 +216,7 @@ function UserManagement() {
                 <th onClick={() => handleSort('email')} style={{ cursor: 'pointer' }}>
                   Email <SortIcon col="email" />
                 </th>
+                <th>Provider</th>
                 <th>Role</th>
                 <th>Status</th>
                 <th onClick={() => handleSort('createdAt')} style={{ cursor: 'pointer' }}>
@@ -243,6 +244,11 @@ function UserManagement() {
                   <td>
                     <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)' }}>
                       {u.email}
+                    </span>
+                  </td>
+                  <td>
+                    <span className="admin-badge admin-badge--gray" style={{ fontSize: '10px' }}>
+                      {u.provider || 'LOCAL'}
                     </span>
                   </td>
                   <td>
@@ -357,6 +363,9 @@ function UserManagement() {
                       </div>
                     </div>
                     <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+                      <span className="admin-badge admin-badge--gold" style={{ fontSize: '10px' }}>
+                        {detailUser.provider || 'LOCAL'}
+                      </span>
                       <span className={`admin-badge ${detailUser.role === 'ADMIN' ? 'admin-badge--red' : 'admin-badge--gray'}`}>
                         {detailUser.role}
                       </span>
@@ -364,6 +373,10 @@ function UserManagement() {
                         {detailUser.status || 'ACTIVE'}
                       </span>
                     </div>
+                  </div>
+
+                  <div style={{ fontSize: '11px', fontFamily: 'monospace', color: 'var(--color-text-secondary)', background: 'var(--color-bg-secondary)', padding: 'var(--space-2) var(--space-3)', borderRadius: 'var(--radius-sm)', marginBottom: 'var(--space-4)', border: '1px solid var(--color-border-light)' }}>
+                    ID: {detailUser.id}
                   </div>
 
                   {detailUser.bio && (

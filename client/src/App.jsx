@@ -8,6 +8,10 @@ import Spinner from './components/ui/Spinner';
 import HomePage from './pages/Home/HomePage';
 import LoginPage from './pages/Auth/LoginPage';
 import RegisterPage from './pages/Auth/RegisterPage';
+import ForgotPasswordPage from './pages/Auth/ForgotPasswordPage';
+import ResetPasswordPage from './pages/Auth/ResetPasswordPage';
+import VerifyEmailPage from './pages/Auth/VerifyEmailPage';
+import MagicLinkCallbackPage from './pages/Auth/MagicLinkCallbackPage';
 import PersonalDevPage from './pages/PersonalDev/PersonalDevPage';
 import FashionPage from './pages/Fashion/FashionPage';
 import BrandsPage from './pages/Brands/BrandsPage';
@@ -96,6 +100,10 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
         <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
+        <Route path="/forgot-password" element={<GuestRoute><ForgotPasswordPage /></GuestRoute>} />
+        <Route path="/reset-password" element={<GuestRoute><ResetPasswordPage /></GuestRoute>} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/auth/magic-link" element={<MagicLinkCallbackPage />} />
         <Route path="/personal-development" element={<ProtectedRoute><PersonalDevPage /></ProtectedRoute>} />
         <Route path="/fashion" element={<FashionPage />} />
         <Route path="/brands" element={<BrandsPage />} />

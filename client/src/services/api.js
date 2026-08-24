@@ -152,9 +152,29 @@ export const api = {
   auth: {
     register: (body) => apiFetch('/auth/register', { method: 'POST', body: JSON.stringify(body) }),
     login: (body) => apiFetch('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
+    google: (body) => apiFetch('/auth/google', { method: 'POST', body: JSON.stringify(body) }),
+    apple: (body) => apiFetch('/auth/apple', { method: 'POST', body: JSON.stringify(body) }),
+    microsoft: (body) => apiFetch('/auth/microsoft', { method: 'POST', body: JSON.stringify(body) }),
+    phoneSendOtp: (body) => apiFetch('/auth/otp/phone/send', { method: 'POST', body: JSON.stringify(body) }),
+    phoneVerifyOtp: (body) => apiFetch('/auth/otp/phone/verify', { method: 'POST', body: JSON.stringify(body) }),
     sendOtp: (body) => apiFetch('/auth/otp/send', { method: 'POST', body: JSON.stringify(body) }),
     verifyOtp: (body) => apiFetch('/auth/otp/verify', { method: 'POST', body: JSON.stringify(body) }),
-    google: (body) => apiFetch('/auth/google', { method: 'POST', body: JSON.stringify(body) }),
+    emailOtpSend: (body) => apiFetch('/auth/otp/email/send', { method: 'POST', body: JSON.stringify(body) }),
+    emailOtpVerify: (body) => apiFetch('/auth/otp/email/verify', { method: 'POST', body: JSON.stringify(body) }),
+    magicLinkSend: (body) => apiFetch('/auth/magic-link/send', { method: 'POST', body: JSON.stringify(body) }),
+    magicLinkVerify: (body) => apiFetch('/auth/magic-link/verify', { method: 'POST', body: JSON.stringify(body) }),
+    verifyEmail: (body) => apiFetch('/auth/verify-email', { method: 'POST', body: JSON.stringify(body) }),
+    forgotPassword: (body) => apiFetch('/auth/forgot-password', { method: 'POST', body: JSON.stringify(body) }),
+    resetPassword: (body) => apiFetch('/auth/reset-password', { method: 'POST', body: JSON.stringify(body) }),
+    mfaVerify: (body) => apiFetch('/auth/mfa/verify', { method: 'POST', body: JSON.stringify(body) }),
+    mfaSetup: () => apiFetch('/auth/mfa/setup', { method: 'POST' }),
+    mfaEnable: (body) => apiFetch('/auth/mfa/enable', { method: 'POST', body: JSON.stringify(body) }),
+    mfaDisable: (body) => apiFetch('/auth/mfa/disable', { method: 'POST', body: JSON.stringify(body) }),
+    getProviders: () => apiFetch('/auth/providers'),
+    unlinkProvider: (provider) => apiFetch(`/auth/providers/${provider}`, { method: 'DELETE' }),
+    getSessions: () => apiFetch('/auth/sessions'),
+    revokeSession: (sessionId) => apiFetch(`/auth/sessions/${sessionId}`, { method: 'DELETE' }),
+    revokeOtherSessions: (body) => apiFetch('/auth/sessions', { method: 'DELETE', body: JSON.stringify(body) }),
     logout: () => {
       const rt = refreshToken || getStoredRefreshToken();
       clearAuth();
@@ -163,6 +183,7 @@ export const api = {
     getMe: () => apiFetch('/auth/me'),
     updateMe: (body) => apiFetch('/auth/me', { method: 'PATCH', body: JSON.stringify(body) }),
     changePassword: (body) => apiFetch('/auth/password', { method: 'PATCH', body: JSON.stringify(body) }),
+    setPassword: (body) => apiFetch('/auth/set-password', { method: 'POST', body: JSON.stringify(body) }),
   },
 
   // ── Goals ──

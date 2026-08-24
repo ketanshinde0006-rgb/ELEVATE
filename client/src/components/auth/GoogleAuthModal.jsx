@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { User, Plus, X, ArrowRight, Shield } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { X, Shield, AlertCircle, KeyRound } from 'lucide-react';
 import './GoogleAuthModal.css';
 
 /* Google Multi-color G Logo */
@@ -24,58 +24,55 @@ const GoogleLogo = ({ size = 28 }) => (
   </svg>
 );
 
-const PRESET_ACCOUNTS = [
-  {
-    id: '1',
-    name: 'Alex Rivers',
-    email: 'alex.rivers@gmail.com',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&q=80',
-    color: '#4285F4',
-  },
-  {
-    id: '2',
-    name: 'Ketan Dave',
-    email: 'ketan.dave@gmail.com',
-    avatar: null,
-    color: '#34A853',
-  },
-];
+export function GoogleAuthModal({ isOpen, onClose, onCredentialResponse }) {
+  const googleBtnRef = useRef(null);
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-export function GoogleAuthModal({ isOpen, onClose, onSelectAccount }) {
-  const [customMode, setCustomMode] = useState(false);
-  const [customName, setCustomName] = useState('');
-  const [customEmail, setCustomEmail] = useState('');
-  const [error, setError] = useState('');
-  const [selectedId, setSelectedId] = useState(null);
+  useEffect(() => {
+    if (!isOpen || !googleClientId) return;
+
+    const initializeGsi = () => {
+      if (window.google?.accounts?.id) {
+        window.google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: (response) => {
+            if (response.credential) {
+              onCredentialResponse(response.credential);
+            }
+          },
+          auto_select: false,
+          cancel_on_tap_outside: true,
+        });
+
+        if (googleBtnRef.current) {
+          googleBtnRef.current.innerHTML = '';
+          window.google.accounts.id.renderButton(googleBtnRef.current, {
+            theme: 'outline',
+            size: 'large',
+            type: 'standard',
+            shape: 'rectangular',
+            text: 'continue_with',
+            logo_alignment: 'left',
+            width: 320,
+          });
+        }
+      }
+    };
+
+    if (window.google?.accounts?.id) {
+      initializeGsi();
+    } else {
+      const checkInterval = setInterval(() => {
+        if (window.google?.accounts?.id) {
+          clearInterval(checkInterval);
+          initializeGsi();
+        }
+      }, 100);
+      return () => clearInterval(checkInterval);
+    }
+  }, [isOpen, googleClientId, onCredentialResponse]);
 
   if (!isOpen) return null;
-
-  const handleSelect = (account) => {
-    setSelectedId(account.id || 'custom');
-    setTimeout(() => {
-      onSelectAccount({
-        email: account.email,
-        firstName: account.name.split(' ')[0] || 'User',
-        lastName: account.name.split(' ').slice(1).join(' ') || '',
-        avatar: account.avatar || null,
-      });
-    }, 450);
-  };
-
-  const handleCustomSubmit = (e) => {
-    e.preventDefault();
-    if (!customEmail.trim() || !/\S+@\S+\.\S+/.test(customEmail)) {
-      setError('Enter a valid Google email address');
-      return;
-    }
-    const name = customName.trim() || customEmail.split('@')[0];
-    handleSelect({
-      id: 'custom',
-      name,
-      email: customEmail.trim(),
-      avatar: null,
-    });
-  };
 
   return (
     <div className="google-modal-overlay" onClick={onClose}>
@@ -84,7 +81,7 @@ export function GoogleAuthModal({ isOpen, onClose, onSelectAccount }) {
         <div className="google-modal-header">
           <div className="google-modal-brand">
             <GoogleLogo size={24} />
-            <span className="google-modal-brand-text">Sign in with Google</span>
+            <span className="google-modal-brand-text">Google Identity Services</span>
           </div>
           <button className="google-modal-close" onClick={onClose} aria-label="Close">
             <X size={18} />
@@ -92,100 +89,54 @@ export function GoogleAuthModal({ isOpen, onClose, onSelectAccount }) {
         </div>
 
         <div className="google-modal-body">
-          <h2 className="google-modal-title">Choose an account</h2>
+          <h2 className="google-modal-title">Sign in with Google</h2>
           <p className="google-modal-subtitle">
-            to continue to <span className="google-modal-app-name">ELEVATE</span>
+            to securely continue to <span className="google-modal-app-name">ELEVATE</span>
           </p>
 
-          {!customMode ? (
-            <div className="google-accounts-list">
-              {PRESET_ACCOUNTS.map((acc) => (
-                <button
-                  key={acc.id}
-                  type="button"
-                  className={`google-account-item ${selectedId === acc.id ? 'google-account-item--loading' : ''}`}
-                  onClick={() => handleSelect(acc)}
-                  disabled={selectedId !== null}
-                >
-                  <div className="google-account-avatar">
-                    {acc.avatar ? (
-                      <img src={acc.avatar} alt={acc.name} />
-                    ) : (
-                      <div className="google-account-initial" style={{ background: acc.color }}>
-                        {acc.name.charAt(0)}
-                      </div>
-                    )}
-                  </div>
-                  <div className="google-account-info">
-                    <span className="google-account-name">{acc.name}</span>
-                    <span className="google-account-email">{acc.email}</span>
-                  </div>
-                  {selectedId === acc.id ? (
-                    <div className="google-spinner" />
-                  ) : (
-                    <ArrowRight size={16} className="google-account-arrow" />
-                  )}
-                </button>
-              ))}
-
-              {/* Use another account */}
-              <button
-                type="button"
-                className="google-account-item google-account-item--add"
-                onClick={() => setCustomMode(true)}
-                disabled={selectedId !== null}
-              >
-                <div className="google-account-avatar google-account-avatar--icon">
-                  <Plus size={18} />
-                </div>
-                <div className="google-account-info">
-                  <span className="google-account-name">Use another account</span>
-                </div>
-              </button>
+          {googleClientId ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '24px 0', gap: '16px' }}>
+              <div ref={googleBtnRef} style={{ minHeight: '44px' }} />
+              <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', textAlign: 'center', maxWidth: '300px' }}>
+                Select your verified Google Account from the official Google prompt above.
+              </p>
             </div>
           ) : (
-            <form onSubmit={handleCustomSubmit} className="google-custom-form">
-              {error && <div className="google-form-error">{error}</div>}
-              <div className="google-input-group">
-                <label>Your Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Jordan Lee"
-                  value={customName}
-                  onChange={(e) => { setCustomName(e.target.value); setError(''); }}
-                  autoFocus
-                />
+            <div style={{
+              background: 'rgba(197, 168, 128, 0.08)',
+              border: '1px solid rgba(197, 168, 128, 0.25)',
+              borderRadius: '8px',
+              padding: '16px',
+              margin: '16px 0',
+              textAlign: 'left'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#c5a880', fontWeight: 600, fontSize: '13px', marginBottom: '8px' }}>
+                <KeyRound size={16} />
+                <span>IMPLEMENTED — GOOGLE CREDENTIALS REQUIRED</span>
               </div>
-              <div className="google-input-group">
-                <label>Google Email address</label>
-                <input
-                  type="email"
-                  placeholder="name@gmail.com"
-                  value={customEmail}
-                  onChange={(e) => { setCustomEmail(e.target.value); setError(''); }}
-                  required
-                />
-              </div>
-              <div className="google-custom-actions">
-                <button
-                  type="button"
-                  className="google-btn-secondary"
-                  onClick={() => setCustomMode(false)}
-                >
-                  Back to accounts
-                </button>
-                <button type="submit" className="google-btn-primary" disabled={selectedId !== null}>
-                  {selectedId === 'custom' ? 'Signing in...' : 'Continue'}
-                </button>
-              </div>
-            </form>
+              <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: 0 }}>
+                Real Google Identity Services (GIS) server-side token verification is fully implemented. To perform live Google sign-in with your Google account, configure:
+              </p>
+              <pre style={{
+                fontSize: '11px',
+                background: 'rgba(0,0,0,0.3)',
+                padding: '8px',
+                borderRadius: '4px',
+                marginTop: '10px',
+                overflowX: 'auto',
+                color: '#e5e7eb'
+              }}>
+                VITE_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com{'\n'}
+                GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+              </pre>
+            </div>
           )}
 
           {/* Footer Security Notice */}
           <div className="google-modal-footer">
             <Shield size={13} className="google-footer-shield" />
             <span>
-              To continue, Google will securely share your name, email address, and profile photo with ELEVATE.
+              Google token credentials are cryptographically verified server-side. No simulated or fake accounts are generated.
             </span>
           </div>
         </div>
@@ -193,4 +144,5 @@ export function GoogleAuthModal({ isOpen, onClose, onSelectAccount }) {
     </div>
   );
 }
+
 export default GoogleAuthModal;

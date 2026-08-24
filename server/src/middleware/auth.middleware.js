@@ -18,11 +18,15 @@ export async function authenticate(req, res, next) {
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: { id: true, email: true, firstName: true, lastName: true, role: true, avatar: true },
+      select: { id: true, email: true, firstName: true, lastName: true, role: true, avatar: true, provider: true, emailVerified: true, status: true },
     });
 
     if (!user) {
       return errorResponse(res, 'User not found', 401);
+    }
+
+    if (user.status === 'SUSPENDED') {
+      return errorResponse(res, 'Account has been suspended', 403);
     }
 
     req.user = user;

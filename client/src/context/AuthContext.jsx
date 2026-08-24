@@ -14,25 +14,16 @@ export function AuthProvider({ children }) {
     });
   }, []);
 
-  // Try to restore session on mount
+  // Restore real session on mount via refresh token + GET /api/auth/me
   useEffect(() => {
     const restoreSession = async () => {
       const storedRefresh = getStoredRefreshToken();
       if (!storedRefresh) {
-        // Check legacy localStorage user
-        try {
-          const legacyUser = JSON.parse(localStorage.getItem('elevate_user'));
-          if (legacyUser) {
-            // Clear legacy and let user re-login with real backend
-            localStorage.removeItem('elevate_user');
-          }
-        } catch {}
         setLoading(false);
         return;
       }
 
       try {
-        // Try to refresh the access token
         const refreshRes = await fetch('/api/auth/refresh', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -43,16 +34,17 @@ export function AuthProvider({ children }) {
           const refreshData = await refreshRes.json();
           setTokens(refreshData.data.accessToken, refreshData.data.refreshToken);
 
-          // Get user profile
           const meRes = await api.auth.getMe();
           const userData = meRes.data;
           setUser(userData);
           localStorage.setItem('elevate_user', JSON.stringify(userData));
         } else {
           clearAuth();
+          setUser(null);
         }
       } catch {
         clearAuth();
+        setUser(null);
       }
       setLoading(false);
     };
@@ -63,6 +55,20 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (credentials, maybePassword) => {
     const payload = typeof credentials === 'object' ? credentials : { identifier: credentials, password: maybePassword };
     const res = await api.auth.login(payload);
+
+    if (res.data?.mfaRequired) {
+      return { mfaRequired: true, tempToken: res.data.tempToken, user: res.data.user };
+    }
+
+    setTokens(res.data.accessToken, res.data.refreshToken);
+    const userData = res.data.user;
+    setUser(userData);
+    localStorage.setItem('elevate_user', JSON.stringify(userData));
+    return userData;
+  }, []);
+
+  const verifyMfa = useCallback(async ({ tempToken, code }) => {
+    const res = await api.auth.mfaVerify({ tempToken, code });
     setTokens(res.data.accessToken, res.data.refreshToken);
     const userData = res.data.user;
     setUser(userData);
@@ -79,8 +85,20 @@ export function AuthProvider({ children }) {
     return userData;
   }, []);
 
-  const verifyOtpAndRegister = useCallback(async (data) => {
-    const res = await api.auth.verifyOtp(data);
+  const loginWithGoogle = useCallback(async (credentialPayload) => {
+    const payload = typeof credentialPayload === 'string'
+      ? { credential: credentialPayload }
+      : credentialPayload;
+
+    if (!payload?.credential) {
+      throw new Error('Google credential token is required.');
+    }
+
+    const res = await api.auth.google(payload);
+    if (res.data?.mfaRequired) {
+      return { mfaRequired: true, tempToken: res.data.tempToken, user: res.data.user };
+    }
+
     setTokens(res.data.accessToken, res.data.refreshToken);
     const userData = res.data.user;
     setUser(userData);
@@ -88,13 +106,59 @@ export function AuthProvider({ children }) {
     return userData;
   }, []);
 
-  const loginWithGoogle = useCallback(async (profile) => {
-    const res = await api.auth.google(profile || {
-      email: 'alex.rivers@gmail.com',
-      firstName: 'Alex',
-      lastName: 'Rivers',
-      avatar: null,
-    });
+  const loginWithApple = useCallback(async (payload) => {
+    const res = await api.auth.apple(payload);
+    if (res.data?.mfaRequired) {
+      return { mfaRequired: true, tempToken: res.data.tempToken, user: res.data.user };
+    }
+    setTokens(res.data.accessToken, res.data.refreshToken);
+    const userData = res.data.user;
+    setUser(userData);
+    localStorage.setItem('elevate_user', JSON.stringify(userData));
+    return userData;
+  }, []);
+
+  const loginWithMicrosoft = useCallback(async (payload) => {
+    const res = await api.auth.microsoft(payload);
+    if (res.data?.mfaRequired) {
+      return { mfaRequired: true, tempToken: res.data.tempToken, user: res.data.user };
+    }
+    setTokens(res.data.accessToken, res.data.refreshToken);
+    const userData = res.data.user;
+    setUser(userData);
+    localStorage.setItem('elevate_user', JSON.stringify(userData));
+    return userData;
+  }, []);
+
+  const loginWithPhoneVerify = useCallback(async ({ phone, code }) => {
+    const res = await api.auth.phoneVerifyOtp({ phone, code });
+    if (res.data?.mfaRequired) {
+      return { mfaRequired: true, tempToken: res.data.tempToken, user: res.data.user };
+    }
+    setTokens(res.data.accessToken, res.data.refreshToken);
+    const userData = res.data.user;
+    setUser(userData);
+    localStorage.setItem('elevate_user', JSON.stringify(userData));
+    return userData;
+  }, []);
+
+  const loginWithEmailOtpVerify = useCallback(async ({ email, otp }) => {
+    const res = await api.auth.emailOtpVerify({ email, otp });
+    if (res.data?.mfaRequired) {
+      return { mfaRequired: true, tempToken: res.data.tempToken, user: res.data.user };
+    }
+    setTokens(res.data.accessToken, res.data.refreshToken);
+    const userData = res.data.user;
+    setUser(userData);
+    localStorage.setItem('elevate_user', JSON.stringify(userData));
+    return userData;
+  }, []);
+
+  const loginWithMagicLinkVerify = useCallback(async ({ email, token }) => {
+    const res = await api.auth.magicLinkVerify({ email, token });
+    if (res.data?.mfaRequired) {
+      return { mfaRequired: true, tempToken: res.data.tempToken, user: res.data.user };
+    }
     setTokens(res.data.accessToken, res.data.refreshToken);
     const userData = res.data.user;
     setUser(userData);
@@ -106,7 +170,7 @@ export function AuthProvider({ children }) {
     try {
       await api.auth.logout();
     } catch {
-      // Logout even if API call fails
+      // Local clean even if network failure
     }
     clearAuth();
     setUser(null);
@@ -120,17 +184,38 @@ export function AuthProvider({ children }) {
     return userData;
   }, []);
 
+  const changePassword = useCallback(async (passwordData) => {
+    const res = await api.auth.changePassword(passwordData);
+    const meRes = await api.auth.getMe();
+    setUser(meRes.data);
+    return res;
+  }, []);
+
+  const setPassword = useCallback(async (passwordData) => {
+    const res = await api.auth.setPassword(passwordData);
+    const meRes = await api.auth.getMe();
+    setUser(meRes.data);
+    return res;
+  }, []);
+
   const value = {
     user,
     loading,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'ADMIN',
     login,
+    verifyMfa,
     register,
-    verifyOtpAndRegister,
     loginWithGoogle,
+    loginWithApple,
+    loginWithMicrosoft,
+    loginWithPhoneVerify,
+    loginWithEmailOtpVerify,
+    loginWithMagicLinkVerify,
     logout,
     updateUser,
+    changePassword,
+    setPassword,
     setUser,
   };
 

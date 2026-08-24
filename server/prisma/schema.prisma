@@ -14,46 +14,64 @@ datasource db {
 
 // ── User ──────────────────────────────────────────────────────
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  phone         String?  @unique
-  password      String
-  firstName     String
-  lastName      String
-  role          Role     @default(USER)
-  avatar        String?
-  bio           String?  @db.Text
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                  String       @id @default(uuid())
+  email               String       @unique
+  phone               String?      @unique
+  password            String?
+  firstName           String
+  lastName            String
+  role                Role         @default(USER)
+  provider            AuthProvider @default(LOCAL)
+  googleId            String?      @unique
+  emailVerified       Boolean      @default(false)
+  phoneVerified       Boolean      @default(false)
+  avatar              String?
+  bio                 String?      @db.Text
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  // Two-Factor Authentication (Encrypted at rest)
+  twoFactorEnabled    Boolean      @default(false)
+  twoFactorSecret     String?      @db.Text
+  recoveryCodes       String?      @db.Text // JSON array of hashed recovery codes
+
+  // Rate Limiting & Account Security
+  failedLoginAttempts Int          @default(0)
+  lockoutUntil        DateTime?
 
   // Preferences (stored as JSON)
-  preferredStyles   String?  @db.Text  // JSON array
-  preferredColors   String?  @db.Text  // JSON array
-  primaryOccasion   String?
-  seasonFocus       String?
-  profileVisibility String   @default("private")
-  wardrobeVisibility String  @default("private")
-  emailNotifications Boolean @default(true)
+  preferredStyles     String?      @db.Text  // JSON array
+  preferredColors     String?      @db.Text  // JSON array
+  primaryOccasion     String?
+  seasonFocus         String?
+  profileVisibility   String       @default("private")
+  wardrobeVisibility  String       @default("private")
+  emailNotifications  Boolean      @default(true)
 
-  status            String   @default("ACTIVE") // ACTIVE, SUSPENDED
+  status              String       @default("ACTIVE") // ACTIVE, SUSPENDED
 
   // Relations
-  goals           Goal[]
-  tasks           Task[]
-  habits          Habit[]
-  skills          Skill[]
-  journalEntries  JournalEntry[]
-  savedStyles     SavedStyle[]
-  savedBrands     SavedBrand[]
-  wardrobeItems   WardrobeItem[]
-  outfits         Outfit[]
-  notifications   Notification[]
-  auditLogs       AuditLog[]
-  refreshTokens   RefreshToken[]
-  reportsFiled    Report[]       @relation("ReportedByUser")
-  reportsResolved Report[]       @relation("ReportResolvedBy")
+  authIdentities      AuthIdentity[]
+  verificationTokens  VerificationToken[]
+  sessions            Session[]
+  refreshTokens       RefreshToken[]
+  goals               Goal[]
+  tasks               Task[]
+  habits              Habit[]
+  skills              Skill[]
+  journalEntries      JournalEntry[]
+  savedStyles         SavedStyle[]
+  savedBrands         SavedBrand[]
+  wardrobeItems       WardrobeItem[]
+  outfits             Outfit[]
+  notifications       Notification[]
+  auditLogs           AuditLog[]
+  reportsFiled        Report[]       @relation("ReportedByUser")
+  reportsResolved     Report[]       @relation("ReportResolvedBy")
 
   @@index([email])
+  @@index([googleId])
+  @@index([phone])
 }
 
 enum Role {
@@ -61,7 +79,89 @@ enum Role {
   ADMIN
 }
 
-// ── Refresh Tokens ───────────────────────────────────────────
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+  BOTH
+}
+
+// ── Normalized Multi-Provider Identities ─────────────────────
+model AuthIdentity {
+  id                String           @id @default(uuid())
+  userId            String
+  provider          AuthProviderType
+  providerAccountId String           // Provider unique user ID or verified email/phone
+  email             String?
+  phone             String?
+  profileData       String?          @db.Text // JSON metadata (e.g. name from Apple/MS)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@index([provider, email])
+  @@index([provider, phone])
+}
+
+enum AuthProviderType {
+  LOCAL
+  GOOGLE
+  APPLE
+  MICROSOFT
+  PHONE
+}
+
+// ── Purpose-Bound Verification Tokens & OTPs ─────────────────
+model VerificationToken {
+  id          String           @id @default(uuid())
+  userId      String?
+  identifier  String           // email or phone
+  type        VerificationType
+  tokenHash   String           @db.VarChar(500)
+  expiresAt   DateTime
+  attempts    Int              @default(0)
+  maxAttempts Int              @default(5)
+  consumedAt  DateTime?
+  createdAt   DateTime         @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([identifier, type])
+  @@index([tokenHash])
+  @@index([userId])
+}
+
+enum VerificationType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+  EMAIL_OTP
+  MAGIC_LINK
+}
+
+// ── Sessions & Device Management ──────────────────────────────
+model Session {
+  id           String    @id @default(uuid())
+  userId       String
+  tokenHash    String    @unique @db.VarChar(500) // SHA-256 hash of refresh token
+  userAgent    String?   @db.Text
+  ipAddress    String?
+  device       String?
+  browser      String?
+  os           String?
+  lastActiveAt DateTime  @default(now())
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+}
+
+// ── Legacy Refresh Tokens (Kept for compatibility) ───────────
 model RefreshToken {
   id        String   @id @default(uuid())
   token     String   @unique @db.VarChar(500)
