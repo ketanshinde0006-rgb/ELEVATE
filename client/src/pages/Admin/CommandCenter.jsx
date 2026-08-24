@@ -15,6 +15,7 @@ import {
   Server,
   RefreshCw,
   Clock,
+  ExternalLink,
 } from 'lucide-react';
 import api from '../../services/api';
 import Spinner from '../../components/ui/Spinner';
@@ -45,9 +46,9 @@ function CommandCenter() {
     fetchData();
   }, [fetchData]);
 
-  if (loading) {
+  if (loading && !stats) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: 'var(--space-16)' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
         <Spinner size="lg" />
       </div>
     );
@@ -79,17 +80,17 @@ function CommandCenter() {
 
   return (
     <div>
-      <div className="admin-module__header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="admin-module__header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-5)' }}>
         <div>
           <h1 className="admin-module__title">Operations Overview</h1>
-          <p className="admin-module__subtitle">Platform telemetry, real-time inventory counts, and recent administrator activity</p>
+          <p className="admin-module__subtitle">Platform telemetry, real-time inventory counts, and administrator event stream</p>
         </div>
-        <button className="admin-btn admin-btn--secondary" onClick={fetchData}>
+        <button className="admin-btn admin-btn--secondary" onClick={fetchData} style={{ fontSize: '12px' }}>
           <RefreshCw size={14} /> Refresh Data
         </button>
       </div>
 
-      {/* KPI Grid */}
+      {/* KPI Grid (5x2 cards) */}
       <div className="admin-kpi-grid">
         {kpis.map((kpi) => (
           <div
@@ -99,33 +100,34 @@ function CommandCenter() {
             style={{ cursor: kpi.to ? 'pointer' : 'default' }}
           >
             <div className={`admin-kpi__icon ${kpi.color ? `admin-kpi__icon--${kpi.color}` : ''}`}>
-              <kpi.icon size={20} strokeWidth={1.8} />
+              <kpi.icon size={18} strokeWidth={1.8} />
             </div>
             <div className="admin-kpi__data">
               <div className="admin-kpi__value">{kpi.value.toLocaleString()}</div>
-              <div className="admin-kpi__label">{kpi.label}</div>
+              <div className="admin-kpi__label" title={kpi.label}>{kpi.label}</div>
             </div>
           </div>
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 'var(--space-6)' }}>
+      {/* Lower Section: 2 Balanced Columns */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 'var(--space-6)', alignItems: 'stretch' }}>
         {/* Recent Activity Timeline */}
-        <div className="admin-panel">
+        <div className="admin-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%', marginBottom: 0 }}>
           <div className="admin-panel__header">
             <h2 className="admin-panel__title">
-              <Clock size={18} style={{ color: 'var(--color-accent-primary)' }} />
+              <Clock size={17} style={{ color: 'var(--color-accent-primary)' }} />
               Recent Operations Log
             </h2>
-            <button className="admin-action-btn" onClick={() => navigate('/admin/audit')} style={{ fontSize: 'var(--font-size-xs)' }}>
+            <button className="admin-action-btn" onClick={() => navigate('/admin/audit')} style={{ fontSize: '11px' }}>
               View Full Trail →
             </button>
           </div>
-          <div className="admin-panel__body">
+          <div className="admin-panel__body" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             {recentAudit.length === 0 ? (
-              <p style={{ color: 'var(--color-text-tertiary)', fontSize: 'var(--font-size-sm)', margin: 0 }}>
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '220px', color: 'var(--color-text-tertiary)', fontSize: 'var(--font-size-sm)' }}>
                 No recent administrative activity recorded in the database.
-              </p>
+              </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
                 {recentAudit.slice(0, 7).map((log) => (
@@ -139,7 +141,7 @@ function CommandCenter() {
                       borderBottom: '1px solid var(--color-border-light)',
                     }}
                   >
-                    <span className="admin-badge admin-badge--gold" style={{ marginTop: 2 }}>
+                    <span className="admin-badge admin-badge--gold" style={{ marginTop: 2, fontSize: '10px' }}>
                       {log.action}
                     </span>
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -158,41 +160,49 @@ function CommandCenter() {
         </div>
 
         {/* Quick Workspaces */}
-        <div className="admin-panel">
+        <div className="admin-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%', marginBottom: 0 }}>
           <div className="admin-panel__header">
             <h2 className="admin-panel__title">
-              <Layers size={18} style={{ color: 'var(--color-accent-primary)' }} />
+              <Layers size={17} style={{ color: 'var(--color-accent-primary)' }} />
               Management Workspaces
             </h2>
           </div>
-          <div className="admin-panel__body">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 'var(--space-3)' }}>
+          <div className="admin-panel__body" style={{ flex: 1 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-3)' }}>
               {quickActions.map((action) => (
                 <div
                   key={action.label}
                   onClick={() => navigate(action.to)}
                   style={{
-                    padding: 'var(--space-3)',
+                    padding: 'var(--space-3) var(--space-4)',
                     background: 'var(--color-bg-secondary)',
                     borderRadius: 'var(--radius-md)',
                     border: '1px solid var(--color-border-light)',
                     cursor: 'pointer',
                     transition: 'all var(--transition-fast)',
+                    minHeight: '74px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
+                    e.currentTarget.style.background = 'rgba(197, 168, 128, 0.08)';
                     e.currentTarget.style.transform = 'translateY(-1px)';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.borderColor = 'var(--color-border-light)';
+                    e.currentTarget.style.background = 'var(--color-bg-secondary)';
                     e.currentTarget.style.transform = 'none';
                   }}
                 >
-                  <action.icon size={18} style={{ color: 'var(--color-accent-primary)', marginBottom: 6 }} />
-                  <div style={{ fontSize: 'var(--font-size-sm)', fontWeight: 600, color: 'var(--color-text-primary)' }}>
-                    {action.label}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                    <action.icon size={15} style={{ color: 'var(--color-accent-primary)' }} />
+                    <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                      {action.label}
+                    </span>
                   </div>
-                  <div style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: 2 }}>
+                  <div style={{ fontSize: '10.5px', color: 'var(--color-text-tertiary)', lineHeight: 1.3 }}>
                     {action.desc}
                   </div>
                 </div>
