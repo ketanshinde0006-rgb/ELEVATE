@@ -150,8 +150,8 @@ function ProfilePage() {
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        setStatusMessage({ type: 'error', text: 'Image size must be less than 2MB' });
+      if (file.size > 5 * 1024 * 1024) {
+        setStatusMessage({ type: 'error', text: 'Image size must be less than 5MB' });
         return;
       }
       const reader = new FileReader();
@@ -172,9 +172,11 @@ function ProfilePage() {
     setStatusMessage({ type: '', text: '' });
     try {
       await updateUser({
-        firstName: form.firstName,
-        lastName: form.lastName,
-        avatar: form.avatar,
+        firstName: form.firstName?.trim(),
+        lastName: form.lastName?.trim(),
+        email: form.email?.trim(),
+        phone: form.phone?.trim() || null,
+        avatar: form.avatar || null,
         bio: form.bio,
         preferredStyles: JSON.stringify([form.preferredStyles]),
         preferredColors: JSON.stringify([form.preferredColors]),
@@ -459,7 +461,7 @@ function ProfilePage() {
                     <div className="profile-photo-row">
                       <div className="profile-photo-preview">
                         {form.avatar ? (
-                          <img src={form.avatar} alt="Avatar preview" />
+                          <img src={form.avatar} alt="Avatar preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
                           `${form.firstName?.charAt(0) || 'U'}${form.lastName?.charAt(0) || ''}`
                         )}
@@ -467,7 +469,7 @@ function ProfilePage() {
                       <div className="profile-photo-actions">
                         <div className="profile-photo-btns">
                           <label className="btn btn--secondary btn--sm" style={{ cursor: editing ? 'pointer' : 'default', opacity: editing ? 1 : 0.6 }}>
-                            <Camera size={14} style={{ marginRight: 6 }} /> Upload Picture
+                            <Camera size={14} style={{ marginRight: 6 }} /> Upload from Gallery
                             <input
                               type="file"
                               accept="image/*"
@@ -488,28 +490,35 @@ function ProfilePage() {
                           )}
                         </div>
                         <p className="profile-photo-hint">
-                          Upload JPG, PNG or WebP image under 2MB, or paste a photo URL below.
+                          Select a picture from your device or gallery (JPG, PNG, WebP up to 5MB).
                         </p>
                       </div>
                     </div>
 
-                    {editing && (
-                      <Input
-                        label="Avatar Image URL"
-                        name="avatar"
-                        value={form.avatar}
-                        onChange={handleChange}
-                        placeholder="https://images.unsplash.com/... or paste image URL"
-                        hint="You can also paste a direct image URL for your profile picture."
-                      />
-                    )}
-
                     <div className="auth-card__row">
-                      <Input label="First Name" name="firstName" value={form.firstName} onChange={handleChange} disabled={!editing} />
+                      <Input label="First Name" name="firstName" value={form.firstName} onChange={handleChange} disabled={!editing} required />
                       <Input label="Last Name" name="lastName" value={form.lastName} onChange={handleChange} disabled={!editing} />
                     </div>
-                    <Input label="Email" name="email" type="email" value={form.email} disabled hint="Your primary login email address" />
-                    <Input label="Mobile Phone" name="phone" type="tel" value={form.phone || 'Not added'} disabled hint="Manage your verified phone in Security settings" />
+                    <Input
+                      label="Email Address"
+                      name="email"
+                      type="email"
+                      value={form.email}
+                      onChange={handleChange}
+                      disabled={!editing}
+                      required
+                      hint={editing ? 'Changing your email will update your sign-in identifier.' : 'Your primary login email address'}
+                    />
+                    <Input
+                      label="Mobile Phone"
+                      name="phone"
+                      type="tel"
+                      placeholder="Enter mobile phone number"
+                      value={form.phone}
+                      onChange={handleChange}
+                      disabled={!editing}
+                      hint="Optional contact number for account recovery & SMS verification"
+                    />
                     <Textarea label="Bio" name="bio" value={form.bio} onChange={handleChange} disabled={!editing} rows={3} placeholder="Tell us about yourself..." />
                   </div>
                 </Card.Body>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Shield,
   Lock,
@@ -16,7 +16,9 @@ import {
   Eye,
   EyeOff,
   Save,
-  KeyRound,
+  Camera,
+  Trash2,
+  Upload,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
@@ -25,6 +27,7 @@ import './AdminShell.css';
 
 export function AdminAccount() {
   const { user, updateUser, changePassword } = useAuth();
+  const fileInputRef = useRef(null);
 
   // Active Tab: 'profile' | 'security' | 'audit'
   const [activeTab, setActiveTab] = useState('profile');
@@ -33,6 +36,7 @@ export function AdminAccount() {
   const [profileForm, setProfileForm] = useState({
     firstName: '',
     lastName: '',
+    email: '',
     phone: '',
     avatar: '',
   });
@@ -57,7 +61,7 @@ export function AdminAccount() {
   const [loading, setLoading] = useState(true);
 
   // 2FA Setup Flow State
-  const [mfaSetupData, setMfaSetupData] = useState(null); // { secret, otpauthUri, qrCodeDataUrl, recoveryCodes }
+  const [mfaSetupData, setMfaSetupData] = useState(null);
   const [mfaVerifyCode, setMfaVerifyCode] = useState('');
   const [mfaDisableCode, setMfaDisableCode] = useState('');
   const [mfaDisabling, setMfaDisabling] = useState(false);
@@ -68,6 +72,7 @@ export function AdminAccount() {
       setProfileForm({
         firstName: user.firstName || '',
         lastName: user.lastName || '',
+        email: user.email || '',
         phone: user.phone || '',
         avatar: user.avatar || '',
       });
@@ -102,6 +107,28 @@ export function AdminAccount() {
     }
   };
 
+  // ── Profile Photo Upload from Gallery / Device ──
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setStatusMessage({ type: 'error', text: 'Image file size must be under 5MB.' });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileForm((prev) => ({ ...prev, avatar: reader.result }));
+        setStatusMessage({ type: '', text: '' });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemovePhoto = () => {
+    setProfileForm((prev) => ({ ...prev, avatar: '' }));
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   // ── Profile Updates ──
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
@@ -120,12 +147,13 @@ export function AdminAccount() {
       await updateUser({
         firstName: profileForm.firstName.trim(),
         lastName: profileForm.lastName.trim(),
+        email: profileForm.email.trim(),
         phone: profileForm.phone.trim() || null,
-        avatar: profileForm.avatar.trim() || null,
+        avatar: profileForm.avatar || null,
       });
-      setStatusMessage({ type: 'success', text: 'Admin profile updated successfully.' });
+      setStatusMessage({ type: 'success', text: 'Admin account details updated successfully.' });
     } catch (err) {
-      setStatusMessage({ type: 'error', text: err.message || 'Failed to update profile.' });
+      setStatusMessage({ type: 'error', text: err.message || 'Failed to update account details.' });
     } finally {
       setSaving(false);
     }
@@ -265,7 +293,7 @@ export function AdminAccount() {
       <div className="admin-module__header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 className="admin-module__title">Admin Account</h1>
-          <p className="admin-module__subtitle">Manage your profile details, password, two-factor authentication, and sessions</p>
+          <p className="admin-module__subtitle">Manage your profile, email, phone, credentials, two-factor authentication, and sessions</p>
         </div>
         <button className="admin-btn admin-btn--secondary" onClick={fetchAccountSecurityData} disabled={saving} style={{ fontSize: '12px' }}>
           <RefreshCw size={14} /> Refresh
@@ -311,7 +339,7 @@ export function AdminAccount() {
             gap: 6,
           }}
         >
-          <User size={15} /> Profile
+          <User size={15} /> Profile & Account Details
         </button>
         <button
           onClick={() => setActiveTab('security')}
@@ -351,7 +379,7 @@ export function AdminAccount() {
         </button>
       </div>
 
-      {/* ── TAB 1: Profile ── */}
+      {/* ── TAB 1: Profile & Account Details ── */}
       {activeTab === 'profile' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 'var(--space-6)' }}>
           {/* Identity Summary Card */}
@@ -364,33 +392,63 @@ export function AdminAccount() {
               <span className="admin-badge admin-badge--gold">Administrator</span>
             </div>
             <div className="admin-panel__body">
+              {/* Profile Photo Row with Upload from Gallery */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
                 <div style={{
-                  width: 54,
-                  height: 54,
+                  width: 64,
+                  height: 64,
                   borderRadius: '50%',
                   background: 'linear-gradient(135deg, #C5A880 0%, #7E6D56 100%)',
                   color: '#FAF8F5',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '18px',
+                  fontSize: '22px',
                   fontWeight: 700,
                   flexShrink: 0,
+                  overflow: 'hidden',
+                  border: '2px solid var(--color-border)',
                 }}>
                   {profileForm.avatar ? (
-                    <img src={profileForm.avatar} alt="Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                    <img src={profileForm.avatar} alt="Avatar preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
                     user?.firstName?.charAt(0) || 'A'
                   )}
                 </div>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '16px', color: 'var(--color-text-primary)' }}>
-                    {user?.firstName} {user?.lastName}
-                  </h3>
-                  <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginTop: 2 }}>
-                    {user?.email}
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn--secondary"
+                      onClick={() => fileInputRef.current?.click()}
+                      style={{ fontSize: '11.5px', padding: '6px 12px' }}
+                    >
+                      <Camera size={13} />
+                      <span>Upload from Gallery</span>
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      style={{ display: 'none' }}
+                    />
+                    {profileForm.avatar && (
+                      <button
+                        type="button"
+                        className="admin-btn admin-btn--danger"
+                        onClick={handleRemovePhoto}
+                        style={{ fontSize: '11.5px', padding: '6px 10px' }}
+                        title="Remove profile picture"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    )}
                   </div>
+                  <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>
+                    JPG, PNG or WebP under 5MB
+                  </span>
                 </div>
               </div>
 
@@ -423,6 +481,10 @@ export function AdminAccount() {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: '12.5px', color: 'var(--color-text-secondary)' }}>
                 <div>
+                  <span style={{ color: 'var(--color-text-tertiary)' }}>Current Email: </span>
+                  <span style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>{user?.email}</span>
+                </div>
+                <div>
                   <span style={{ color: 'var(--color-text-tertiary)' }}>Phone: </span>
                   <span style={{ color: 'var(--color-text-primary)' }}>{user?.phone || 'Not added'}</span>
                 </div>
@@ -436,10 +498,10 @@ export function AdminAccount() {
             </div>
           </div>
 
-          {/* Edit Profile Details */}
+          {/* Edit Account Details Form */}
           <div className="admin-panel">
             <div className="admin-panel__header">
-              <h2 className="admin-panel__title">Edit Details</h2>
+              <h2 className="admin-panel__title">Edit Account Details</h2>
             </div>
             <div className="admin-panel__body">
               <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
@@ -484,11 +546,34 @@ export function AdminAccount() {
                 </div>
 
                 <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: 4 }}>Email Address</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={profileForm.email}
+                    onChange={handleProfileChange}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      border: '1px solid var(--color-border-light)',
+                      background: 'var(--color-bg-primary)',
+                      color: 'var(--color-text-primary)',
+                      fontSize: '13px',
+                    }}
+                  />
+                  <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: 3, display: 'block' }}>
+                    Updating email will update your login identifier.
+                  </span>
+                </div>
+
+                <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: 4 }}>Phone Number</label>
                   <input
                     type="tel"
                     name="phone"
-                    placeholder="Enter phone number (optional)"
+                    placeholder="Enter phone number"
                     value={profileForm.phone}
                     onChange={handleProfileChange}
                     style={{
@@ -503,28 +588,8 @@ export function AdminAccount() {
                   />
                 </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: 4 }}>Profile Photo URL</label>
-                  <input
-                    type="url"
-                    name="avatar"
-                    placeholder="https://..."
-                    value={profileForm.avatar}
-                    onChange={handleProfileChange}
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      borderRadius: '6px',
-                      border: '1px solid var(--color-border-light)',
-                      background: 'var(--color-bg-primary)',
-                      color: 'var(--color-text-primary)',
-                      fontSize: '13px',
-                    }}
-                  />
-                </div>
-
                 <button type="submit" className="admin-btn admin-btn--primary" disabled={saving} style={{ alignSelf: 'flex-start', marginTop: 4 }}>
-                  <Save size={14} /> {saving ? 'Saving...' : 'Save Changes'}
+                  <Save size={14} /> {saving ? 'Saving Changes...' : 'Save Profile Changes'}
                 </button>
               </form>
             </div>

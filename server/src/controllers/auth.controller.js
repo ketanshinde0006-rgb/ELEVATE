@@ -337,7 +337,7 @@ export async function getMe(req, res, next) {
 export async function updateMe(req, res, next) {
   try {
     const allowedFields = [
-      'firstName', 'lastName', 'avatar', 'bio',
+      'firstName', 'lastName', 'email', 'phone', 'avatar', 'bio',
       'preferredStyles', 'preferredColors',
       'primaryOccasion', 'seasonFocus',
       'profileVisibility', 'wardrobeVisibility',
@@ -348,6 +348,31 @@ export async function updateMe(req, res, next) {
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) {
         updateData[field] = req.body[field];
+      }
+    }
+
+    // If updating email, check uniqueness and format
+    if (updateData.email) {
+      updateData.email = updateData.email.trim().toLowerCase();
+      if (!/^\S+@\S+\.\S+$/.test(updateData.email)) {
+        return res.status(400).json({ success: false, message: 'Invalid email address format' });
+      }
+      const existingUser = await prisma.user.findUnique({
+        where: { email: updateData.email },
+      });
+      if (existingUser && existingUser.id !== req.user.id) {
+        return res.status(400).json({ success: false, message: 'Email address is already in use by another account' });
+      }
+    }
+
+    // If updating phone, check uniqueness
+    if (updateData.phone) {
+      updateData.phone = updateData.phone.trim();
+      const existingPhone = await prisma.user.findUnique({
+        where: { phone: updateData.phone },
+      });
+      if (existingPhone && existingPhone.id !== req.user.id) {
+        return res.status(400).json({ success: false, message: 'Phone number is already in use by another account' });
       }
     }
 
@@ -380,11 +405,19 @@ export async function updateMe(req, res, next) {
       },
     });
 
+    // If email was updated, update any LOCAL AuthIdentity too
+    if (updateData.email) {
+      await prisma.authIdentity.updateMany({
+        where: { userId: req.user.id, provider: 'LOCAL' },
+        data: { email: updateData.email, providerAccountId: updateData.email },
+      });
+    }
+
     const { password: rawPassword, ...safeUserData } = user;
     return successResponse(res, {
       ...safeUserData,
       hasPassword: !!rawPassword,
-    }, 'Profile updated');
+    }, 'Profile updated successfully');
   } catch (error) {
     next(error);
   }
