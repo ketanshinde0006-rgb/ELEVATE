@@ -120,8 +120,31 @@ function MediaLibrary() {
               placeholder="Search uploaded files..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              style={{ paddingLeft: 36 }}
+              style={{ paddingLeft: 36, paddingRight: search ? 36 : 14 }}
             />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch('')}
+                style={{
+                  position: 'absolute',
+                  right: 10,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--color-text-tertiary)',
+                  padding: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+                aria-label="Clear search"
+                title="Clear search"
+              >
+                <X size={14} />
+              </button>
+            )}
           </div>
         </div>
         <div className="admin-toolbar__actions">

@@ -214,6 +214,18 @@ function FashionPage() {
               value={search}
               onChange={(e) => { setSearch(e.target.value); setActiveTag(null); setVisibleCount(12); }}
               size="sm"
+              icon={<Search size={15} />}
+              suffix={search ? (
+                <button
+                  type="button"
+                  onClick={() => { setSearch(''); setActiveTag(null); }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex', color: 'var(--color-text-tertiary)' }}
+                  aria-label="Clear search"
+                  title="Clear search"
+                >
+                  <X size={14} />
+                </button>
+              ) : null}
             />
             <Select
               value={sortBy}

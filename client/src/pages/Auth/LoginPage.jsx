@@ -306,25 +306,14 @@ function LoginPage() {
                 autoFocus
               />
 
-              <div style={{ position: 'relative' }}>
-                <Input
-                  label="Password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <button
-                  type="button"
-                  className="auth-password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                  tabIndex={-1}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
+              <Input
+                label="Password"
+                type="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4, marginBottom: 16 }}>
                 <Link to="/forgot-password" style={{ fontSize: '12.5px', color: 'var(--color-accent-primary)', textDecoration: 'none' }}>

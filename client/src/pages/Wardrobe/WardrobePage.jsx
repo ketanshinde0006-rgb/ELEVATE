@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { LayoutGrid, List, Plus, Shirt, Heart, X, Trash2, AlertTriangle, Edit2 } from 'lucide-react';
+import { LayoutGrid, List, Plus, Shirt, Heart, X, Trash2, AlertTriangle, Edit2, Search } from 'lucide-react';
 import api from '../../services/api';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
@@ -146,6 +146,18 @@ function WardrobePage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             size="sm"
+            icon={<Search size={15} />}
+            suffix={search ? (
+              <button
+                type="button"
+                onClick={() => setSearch('')}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex', color: 'var(--color-text-tertiary)' }}
+                aria-label="Clear search"
+                title="Clear search"
+              >
+                <X size={14} />
+              </button>
+            ) : null}
           />
           <Select
             value={filterSeason}

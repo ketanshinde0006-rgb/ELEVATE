@@ -96,30 +96,20 @@ export function ResetPasswordPage() {
               required
             />
 
-            <div style={{ position: 'relative' }}>
-              <Input
-                label="New Password (min 8 chars)"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Enter new password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-                autoFocus
-              />
-              <button
-                type="button"
-                className="auth-password-toggle"
-                onClick={() => setShowPassword(!showPassword)}
-                tabIndex={-1}
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
+            <Input
+              label="New Password"
+              type="password"
+              placeholder="Enter new password (min 8 characters)"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+              autoFocus
+            />
 
             <Input
               label="Confirm New Password"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Confirm new password"
+              type="password"
+              placeholder="Repeat new password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required

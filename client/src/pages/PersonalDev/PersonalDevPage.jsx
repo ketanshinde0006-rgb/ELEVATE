@@ -13,7 +13,9 @@ import {
   CheckCircle2, 
   Plus, 
   Award,
-  Sparkles
+  Sparkles,
+  Search,
+  X
 } from 'lucide-react';
 import api from '../../services/api';
 import Button from '../../components/ui/Button';
@@ -175,6 +177,18 @@ function PersonalDevPage() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 size="sm"
+                icon={<Search size={15} />}
+                suffix={searchTerm ? (
+                  <button
+                    type="button"
+                    onClick={() => setSearchTerm('')}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex', color: 'var(--color-text-tertiary)' }}
+                    aria-label="Clear search"
+                    title="Clear search"
+                  >
+                    <X size={14} />
+                  </button>
+                ) : null}
               />
             </div>
             {(activeTab === 'goals' || activeTab === 'tasks') && (

@@ -23,6 +23,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import Spinner from '../../components/ui/Spinner';
+import Input from '../../components/ui/Input';
 import './AdminShell.css';
 
 export function AdminAccount() {
@@ -506,87 +507,39 @@ export function AdminAccount() {
             <div className="admin-panel__body">
               <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: 4 }}>First Name</label>
-                    <input
-                      type="text"
-                      name="firstName"
-                      value={profileForm.firstName}
-                      onChange={handleProfileChange}
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '8px 12px',
-                        borderRadius: '6px',
-                        border: '1px solid var(--color-border-light)',
-                        background: 'var(--color-bg-primary)',
-                        color: 'var(--color-text-primary)',
-                        fontSize: '13px',
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: 4 }}>Last Name</label>
-                    <input
-                      type="text"
-                      name="lastName"
-                      value={profileForm.lastName}
-                      onChange={handleProfileChange}
-                      style={{
-                        width: '100%',
-                        padding: '8px 12px',
-                        borderRadius: '6px',
-                        border: '1px solid var(--color-border-light)',
-                        background: 'var(--color-bg-primary)',
-                        color: 'var(--color-text-primary)',
-                        fontSize: '13px',
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: 4 }}>Email Address</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={profileForm.email}
+                  <Input
+                    label="First Name"
+                    name="firstName"
+                    value={profileForm.firstName}
                     onChange={handleProfileChange}
                     required
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      borderRadius: '6px',
-                      border: '1px solid var(--color-border-light)',
-                      background: 'var(--color-bg-primary)',
-                      color: 'var(--color-text-primary)',
-                      fontSize: '13px',
-                    }}
                   />
-                  <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', marginTop: 3, display: 'block' }}>
-                    Updating email will update your login identifier.
-                  </span>
+                  <Input
+                    label="Last Name"
+                    name="lastName"
+                    value={profileForm.lastName}
+                    onChange={handleProfileChange}
+                  />
                 </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: 4 }}>Phone Number</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    placeholder="Enter phone number"
-                    value={profileForm.phone}
-                    onChange={handleProfileChange}
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      borderRadius: '6px',
-                      border: '1px solid var(--color-border-light)',
-                      background: 'var(--color-bg-primary)',
-                      color: 'var(--color-text-primary)',
-                      fontSize: '13px',
-                    }}
-                  />
-                </div>
+                <Input
+                  label="Email Address"
+                  name="email"
+                  type="email"
+                  value={profileForm.email}
+                  onChange={handleProfileChange}
+                  required
+                  hint="Updating your email will change your sign-in address."
+                />
+
+                <Input
+                  label="Phone Number"
+                  name="phone"
+                  type="tel"
+                  placeholder="Enter phone number"
+                  value={profileForm.phone}
+                  onChange={handleProfileChange}
+                />
 
                 <button type="submit" className="admin-btn admin-btn--primary" disabled={saving} style={{ alignSelf: 'flex-start', marginTop: 4 }}>
                   <Save size={14} /> {saving ? 'Saving Changes...' : 'Save Profile Changes'}
@@ -615,137 +568,35 @@ export function AdminAccount() {
                 </p>
 
                 <form onSubmit={handleUpdatePassword} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: 4 }}>Current Password</label>
-                    <div style={{ position: 'relative' }}>
-                      <input
-                        type={showCurrentPassword ? 'text' : 'password'}
-                        name="currentPassword"
-                        placeholder="Enter current password"
-                        value={passwordForm.currentPassword}
-                        onChange={handlePasswordChange}
-                        required
-                        style={{
-                          width: '100%',
-                          padding: '8px 36px 8px 12px',
-                          borderRadius: '6px',
-                          border: '1px solid var(--color-border-light)',
-                          background: 'var(--color-bg-primary)',
-                          color: 'var(--color-text-primary)',
-                          fontSize: '13px',
-                          boxSizing: 'border-box',
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                        style={{
-                          position: 'absolute',
-                          right: '8px',
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          color: 'var(--color-text-tertiary)',
-                          padding: 4,
-                          display: 'flex',
-                          alignItems: 'center',
-                        }}
-                        title={showCurrentPassword ? 'Hide password' : 'Show password'}
-                      >
-                        {showCurrentPassword ? <EyeOff size={15} /> : <Eye size={15} />}
-                      </button>
-                    </div>
-                  </div>
+                  <Input
+                    label="Current Password"
+                    name="currentPassword"
+                    type="password"
+                    placeholder="Enter current password"
+                    value={passwordForm.currentPassword}
+                    onChange={handlePasswordChange}
+                    required
+                  />
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: 4 }}>New Password</label>
-                    <div style={{ position: 'relative' }}>
-                      <input
-                        type={showNewPassword ? 'text' : 'password'}
-                        name="newPassword"
-                        placeholder="New password (min 8 chars)"
-                        value={passwordForm.newPassword}
-                        onChange={handlePasswordChange}
-                        required
-                        style={{
-                          width: '100%',
-                          padding: '8px 36px 8px 12px',
-                          borderRadius: '6px',
-                          border: '1px solid var(--color-border-light)',
-                          background: 'var(--color-bg-primary)',
-                          color: 'var(--color-text-primary)',
-                          fontSize: '13px',
-                          boxSizing: 'border-box',
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowNewPassword(!showNewPassword)}
-                        style={{
-                          position: 'absolute',
-                          right: '8px',
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          color: 'var(--color-text-tertiary)',
-                          padding: 4,
-                          display: 'flex',
-                          alignItems: 'center',
-                        }}
-                        title={showNewPassword ? 'Hide password' : 'Show password'}
-                      >
-                        {showNewPassword ? <EyeOff size={15} /> : <Eye size={15} />}
-                      </button>
-                    </div>
-                  </div>
+                  <Input
+                    label="New Password"
+                    name="newPassword"
+                    type="password"
+                    placeholder="New password (min 8 characters)"
+                    value={passwordForm.newPassword}
+                    onChange={handlePasswordChange}
+                    required
+                  />
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: 4 }}>Confirm New Password</label>
-                    <div style={{ position: 'relative' }}>
-                      <input
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        name="confirmPassword"
-                        placeholder="Confirm new password"
-                        value={passwordForm.confirmPassword}
-                        onChange={handlePasswordChange}
-                        required
-                        style={{
-                          width: '100%',
-                          padding: '8px 36px 8px 12px',
-                          borderRadius: '6px',
-                          border: '1px solid var(--color-border-light)',
-                          background: 'var(--color-bg-primary)',
-                          color: 'var(--color-text-primary)',
-                          fontSize: '13px',
-                          boxSizing: 'border-box',
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        style={{
-                          position: 'absolute',
-                          right: '8px',
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          color: 'var(--color-text-tertiary)',
-                          padding: 4,
-                          display: 'flex',
-                          alignItems: 'center',
-                        }}
-                        title={showConfirmPassword ? 'Hide password' : 'Show password'}
-                      >
-                        {showConfirmPassword ? <EyeOff size={15} /> : <Eye size={15} />}
-                      </button>
-                    </div>
-                  </div>
+                  <Input
+                    label="Confirm New Password"
+                    name="confirmPassword"
+                    type="password"
+                    placeholder="Confirm new password"
+                    value={passwordForm.confirmPassword}
+                    onChange={handlePasswordChange}
+                    required
+                  />
 
                   <button type="submit" className="admin-btn admin-btn--primary" disabled={saving} style={{ marginTop: 'var(--space-2)' }}>
                     {saving ? 'Updating...' : 'Update Password'}

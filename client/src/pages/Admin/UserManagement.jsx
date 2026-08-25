@@ -146,8 +146,35 @@ function UserManagement() {
               placeholder="Search by name or email..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              style={{ paddingLeft: 36 }}
+              style={{ paddingLeft: 36, paddingRight: searchInput ? 36 : 14 }}
             />
+            {searchInput && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchInput('');
+                  setSearch('');
+                  setPage(1);
+                }}
+                style={{
+                  position: 'absolute',
+                  right: 10,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--color-text-tertiary)',
+                  padding: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+                aria-label="Clear search"
+                title="Clear search"
+              >
+                <X size={14} />
+              </button>
+            )}
           </div>
         </form>
 

@@ -188,47 +188,25 @@ function RegisterPage() {
             required
           />
 
-          <div style={{ position: 'relative' }}>
-            <Input
-              label="Password"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="At least 8 characters"
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
-            <button
-              type="button"
-              className="auth-password-toggle"
-              onClick={() => setShowPassword(!showPassword)}
-              tabIndex={-1}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-            >
-              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
-          </div>
+          <Input
+            label="Password"
+            name="password"
+            type="password"
+            placeholder="At least 8 characters"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
 
-          <div style={{ position: 'relative' }}>
-            <Input
-              label="Confirm Password"
-              name="confirmPassword"
-              type={showConfirmPassword ? 'text' : 'password'}
-              placeholder="Repeat password"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              required
-            />
-            <button
-              type="button"
-              className="auth-password-toggle"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              tabIndex={-1}
-              aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-            >
-              {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
-          </div>
+          <Input
+            label="Confirm Password"
+            name="confirmPassword"
+            type="password"
+            placeholder="Repeat password"
+            value={form.confirmPassword}
+            onChange={handleChange}
+            required
+          />
 
           <Button type="submit" variant="primary" style={{ width: '100%', marginTop: 8 }} loading={loading}>
             Create Account

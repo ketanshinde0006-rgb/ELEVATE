@@ -713,60 +713,30 @@ function ProfilePage() {
                         <Input
                           label="Current Password"
                           name="currentPassword"
-                          type={showCurrentPassword ? 'text' : 'password'}
+                          type="password"
                           placeholder="Enter current password"
                           value={passwordForm.currentPassword}
                           onChange={handlePasswordChange}
                           required
-                          suffix={
-                            <button
-                              type="button"
-                              onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-tertiary)', padding: 4, display: 'flex', alignItems: 'center' }}
-                              title={showCurrentPassword ? 'Hide password' : 'Show password'}
-                            >
-                              {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                            </button>
-                          }
                         />
                       )}
                       <Input
                         label={user?.hasPassword === false ? 'Create Password' : 'New Password'}
                         name="newPassword"
-                        type={showNewPassword ? 'text' : 'password'}
-                        placeholder="Enter password (min 8 chars)"
+                        type="password"
+                        placeholder="Enter password (min 8 characters)"
                         value={passwordForm.newPassword}
                         onChange={handlePasswordChange}
                         required
-                        suffix={
-                          <button
-                            type="button"
-                            onClick={() => setShowNewPassword(!showNewPassword)}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-tertiary)', padding: 4, display: 'flex', alignItems: 'center' }}
-                            title={showNewPassword ? 'Hide password' : 'Show password'}
-                          >
-                            {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                          </button>
-                        }
                       />
                       <Input
                         label={user?.hasPassword === false ? 'Confirm Password' : 'Confirm New Password'}
                         name="confirmPassword"
-                        type={showConfirmPassword ? 'text' : 'password'}
+                        type="password"
                         placeholder="Confirm password"
                         value={passwordForm.confirmPassword}
                         onChange={handlePasswordChange}
                         required
-                        suffix={
-                          <button
-                            type="button"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-tertiary)', padding: 4, display: 'flex', alignItems: 'center' }}
-                            title={showConfirmPassword ? 'Hide password' : 'Show password'}
-                          >
-                            {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                          </button>
-                        }
                       />
                       <Button type="submit" variant="primary" loading={saving}>
                         {user?.hasPassword === false ? 'Set Password' : 'Change Password'}

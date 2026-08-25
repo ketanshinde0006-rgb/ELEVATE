@@ -59,6 +59,19 @@ function Navbar() {
   }, []);
 
   useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (navRef.current && !navRef.current.contains(e.target)) {
+        setUserMenuOpen(false);
+        setDevelopDropdownOpen(false);
+        setFashionDropdownOpen(false);
+        setSearchOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
     setMobileOpen(false);
     setUserMenuOpen(false);
     setDevelopDropdownOpen(false);

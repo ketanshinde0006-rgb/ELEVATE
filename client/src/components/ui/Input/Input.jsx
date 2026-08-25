@@ -1,10 +1,11 @@
-import { forwardRef, useId } from 'react';
+import { forwardRef, useId, useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import './Input.css';
 
 /**
  * ELEVATE Input Component
  *
- * Accessible form input with label, hint, error, and icon support.
+ * Accessible form input with label, hint, error, icons, and integrated password visibility toggle.
  */
 const Input = forwardRef(({
   label,
@@ -12,8 +13,10 @@ const Input = forwardRef(({
   error,
   required = false,
   size = 'md',
+  type = 'text',
   icon,
   suffix,
+  showPasswordToggle = false,
   className = '',
   id: propId,
   ...props
@@ -23,17 +26,31 @@ const Input = forwardRef(({
   const errorId = `${inputId}-error`;
   const hintId = `${inputId}-hint`;
 
+  // Internal password visibility state (can be used when showPasswordToggle or type="password" is set)
+  const isPasswordField = type === 'password' || showPasswordToggle;
+  const [passwordVisible, setPasswordVisible] = useState(false);
+
+  const effectiveType = isPasswordField
+    ? (passwordVisible ? 'text' : 'password')
+    : type;
+
+  const hasSuffix = suffix || isPasswordField;
+  const hasIcon = !!icon;
+
   const inputClasses = [
     'input',
     size !== 'md' && `input--${size}`,
     error && 'input--error',
+    hasIcon && 'input--has-icon',
+    hasSuffix && 'input--has-suffix',
     className,
   ].filter(Boolean).join(' ');
 
-  const input = (
+  const inputElement = (
     <input
       ref={ref}
       id={inputId}
+      type={effectiveType}
       className={inputClasses}
       aria-invalid={!!error}
       aria-describedby={[
@@ -56,14 +73,27 @@ const Input = forwardRef(({
         </label>
       )}
 
-      {icon || suffix ? (
+      {hasIcon || hasSuffix ? (
         <div className="input-wrapper">
-          {icon && <span className="input-wrapper__icon">{icon}</span>}
-          {input}
-          {suffix && <span className="input-wrapper__suffix">{suffix}</span>}
+          {hasIcon && <span className="input-wrapper__icon">{icon}</span>}
+          {inputElement}
+          {suffix ? (
+            <span className="input-wrapper__suffix">{suffix}</span>
+          ) : isPasswordField ? (
+            <button
+              type="button"
+              className="input-password-btn"
+              onClick={() => setPasswordVisible(!passwordVisible)}
+              aria-label={passwordVisible ? 'Hide password' : 'Show password'}
+              title={passwordVisible ? 'Hide password' : 'Show password'}
+              tabIndex={0}
+            >
+              {passwordVisible ? <EyeOff size={16} strokeWidth={1.8} /> : <Eye size={16} strokeWidth={1.8} />}
+            </button>
+          ) : null}
         </div>
       ) : (
-        input
+        inputElement
       )}
 
       {hint && !error && (
@@ -96,6 +126,8 @@ export const Textarea = forwardRef(({
 }, ref) => {
   const generatedId = useId();
   const inputId = propId || generatedId;
+  const errorId = `${inputId}-error`;
+  const hintId = `${inputId}-hint`;
 
   return (
     <div className="input-group">
@@ -114,10 +146,14 @@ export const Textarea = forwardRef(({
         rows={rows}
         required={required}
         aria-invalid={!!error}
+        aria-describedby={[
+          error ? errorId : null,
+          hint ? hintId : null,
+        ].filter(Boolean).join(' ') || undefined}
         {...props}
       />
-      {hint && !error && <span className="input-group__hint">{hint}</span>}
-      {error && <span className="input-group__error" role="alert">{error}</span>}
+      {hint && !error && <span id={hintId} className="input-group__hint">{hint}</span>}
+      {error && <span id={errorId} className="input-group__error" role="alert">{error}</span>}
     </div>
   );
 });
@@ -140,6 +176,8 @@ export const Select = forwardRef(({
 }, ref) => {
   const generatedId = useId();
   const inputId = propId || generatedId;
+  const errorId = `${inputId}-error`;
+  const hintId = `${inputId}-hint`;
 
   return (
     <div className="input-group">
@@ -157,6 +195,10 @@ export const Select = forwardRef(({
         className={`input select ${error ? 'input--error' : ''} ${className}`}
         required={required}
         aria-invalid={!!error}
+        aria-describedby={[
+          error ? errorId : null,
+          hint ? hintId : null,
+        ].filter(Boolean).join(' ') || undefined}
         {...props}
       >
         {placeholder && <option value="">{placeholder}</option>}
@@ -166,8 +208,8 @@ export const Select = forwardRef(({
           </option>
         ))}
       </select>
-      {hint && !error && <span className="input-group__hint">{hint}</span>}
-      {error && <span className="input-group__error" role="alert">{error}</span>}
+      {hint && !error && <span id={hintId} className="input-group__hint">{hint}</span>}
+      {error && <span id={errorId} className="input-group__error" role="alert">{error}</span>}
     </div>
   );
 });
