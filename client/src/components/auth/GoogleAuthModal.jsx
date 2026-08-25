@@ -108,27 +108,11 @@ export function GoogleAuthModal({ isOpen, onClose, onCredentialResponse }) {
               borderRadius: '8px',
               padding: '16px',
               margin: '16px 0',
-              textAlign: 'left'
+              textAlign: 'center'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#c5a880', fontWeight: 600, fontSize: '13px', marginBottom: '8px' }}>
-                <KeyRound size={16} />
-                <span>IMPLEMENTED — GOOGLE CREDENTIALS REQUIRED</span>
-              </div>
-              <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: 0 }}>
-                Real Google Identity Services (GIS) server-side token verification is fully implemented. To perform live Google sign-in with your Google account, configure:
+              <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: 0 }}>
+                Google Sign-In is temporarily unavailable. Please sign in with your email address and password.
               </p>
-              <pre style={{
-                fontSize: '11px',
-                background: 'rgba(0,0,0,0.3)',
-                padding: '8px',
-                borderRadius: '4px',
-                marginTop: '10px',
-                overflowX: 'auto',
-                color: '#e5e7eb'
-              }}>
-                VITE_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com{'\n'}
-                GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
-              </pre>
             </div>
           )}
 
@@ -136,7 +120,7 @@ export function GoogleAuthModal({ isOpen, onClose, onCredentialResponse }) {
           <div className="google-modal-footer">
             <Shield size={13} className="google-footer-shield" />
             <span>
-              Google token credentials are cryptographically verified server-side. No simulated or fake accounts are generated.
+              Protected with Google Sign-In
             </span>
           </div>
         </div>

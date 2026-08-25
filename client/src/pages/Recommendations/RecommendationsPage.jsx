@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Sparkles, Lightbulb, Shirt, Tag, Layers, Flame, Check, AlertTriangle } from 'lucide-react';
 import api from '../../services/api';
 import Badge from '../../components/ui/Badge';
@@ -10,6 +11,7 @@ import { RecommendationCard } from '../../components/cards';
 import './Recommendations.css';
 
 function RecommendationsPage() {
+  const navigate = useNavigate();
   const [filterType, setFilterType] = useState('all');
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -84,7 +86,7 @@ function RecommendationsPage() {
                     rec.type === 'item' ? '/wardrobe' :
                     rec.type === 'outfit' ? '/outfits' :
                     '/personal-development';
-                  window.location.href = target;
+                  navigate(target);
                 }}
               />
             ))}

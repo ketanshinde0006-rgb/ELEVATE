@@ -23,7 +23,7 @@ import './AdminShell.css';
 
 const NAV_SECTIONS = [
   {
-    title: 'COMMAND',
+    title: 'OVERVIEW',
     items: [
       { to: '/admin', label: 'Overview', icon: LayoutDashboard, end: true },
     ],
@@ -61,7 +61,7 @@ const NAV_SECTIONS = [
 ];
 
 function getBreadcrumb(pathname, search) {
-  if (pathname === '/admin') return { section: 'Command', current: 'Overview' };
+  if (pathname === '/admin') return { section: 'Overview', current: 'Dashboard' };
   if (pathname === '/admin/users') return { section: 'Management', current: 'Users' };
   if (pathname === '/admin/brands') return { section: 'Management', current: 'Brands' };
   if (pathname === '/admin/fashion') {

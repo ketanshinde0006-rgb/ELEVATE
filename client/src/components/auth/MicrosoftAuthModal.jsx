@@ -41,7 +41,6 @@ export function MicrosoftAuthModal({ isOpen, onClose, onCredentialResponse }) {
                 type="button"
                 className="auth-social-btn"
                 onClick={() => {
-                  // Direct MSAL login popup
                   if (window.msalInstance) {
                     window.msalInstance.loginPopup({ scopes: ['openid', 'profile', 'email'] }).then(onCredentialResponse);
                   }
@@ -61,35 +60,18 @@ export function MicrosoftAuthModal({ isOpen, onClose, onCredentialResponse }) {
               borderRadius: '8px',
               padding: '16px',
               margin: '16px 0',
-              textAlign: 'left',
+              textAlign: 'center',
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#c5a880', fontWeight: 600, fontSize: '13px', marginBottom: '8px' }}>
-                <KeyRound size={16} />
-                <span>IMPLEMENTED — MICROSOFT CREDENTIALS REQUIRED</span>
-              </div>
-              <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: 0 }}>
-                Sign in with Microsoft OAuth/OIDC identity token verification is fully implemented. To enable live Microsoft Sign-In, configure:
+              <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: 0 }}>
+                Sign in with Microsoft is temporarily unavailable. Please sign in with your email address and password.
               </p>
-              <pre style={{
-                fontSize: '11px',
-                background: 'rgba(0,0,0,0.3)',
-                padding: '8px',
-                borderRadius: '4px',
-                marginTop: '10px',
-                overflowX: 'auto',
-                color: '#e5e7eb',
-              }}>
-                VITE_MICROSOFT_CLIENT_ID=your-azure-app-client-id{'\n'}
-                MICROSOFT_CLIENT_ID=your-azure-app-client-id{'\n'}
-                MICROSOFT_TENANT_ID=common
-              </pre>
             </div>
           )}
 
           <div className="google-modal-footer">
             <Shield size={13} className="google-footer-shield" />
             <span>
-              Microsoft tokens are verified server-side with standard OpenID Connect specifications.
+              Protected with Microsoft Account
             </span>
           </div>
         </div>

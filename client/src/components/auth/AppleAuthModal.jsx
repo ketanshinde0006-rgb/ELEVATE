@@ -58,36 +58,18 @@ export function AppleAuthModal({ isOpen, onClose, onCredentialResponse }) {
               borderRadius: '8px',
               padding: '16px',
               margin: '16px 0',
-              textAlign: 'left',
+              textAlign: 'center',
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#c5a880', fontWeight: 600, fontSize: '13px', marginBottom: '8px' }}>
-                <KeyRound size={16} />
-                <span>IMPLEMENTED — APPLE CREDENTIALS REQUIRED</span>
-              </div>
-              <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: 0 }}>
-                Sign in with Apple server token verification and identity mapping are fully implemented. To enable live Sign in with Apple for your organization, configure:
+              <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: 0 }}>
+                Sign in with Apple is temporarily unavailable. Please sign in with your email address and password.
               </p>
-              <pre style={{
-                fontSize: '11px',
-                background: 'rgba(0,0,0,0.3)',
-                padding: '8px',
-                borderRadius: '4px',
-                marginTop: '10px',
-                overflowX: 'auto',
-                color: '#e5e7eb',
-              }}>
-                VITE_APPLE_CLIENT_ID=com.elevate.web{'\n'}
-                APPLE_CLIENT_ID=com.elevate.web{'\n'}
-                APPLE_TEAM_ID=your-team-id{'\n'}
-                APPLE_KEY_ID=your-key-id
-              </pre>
             </div>
           )}
 
           <div className="google-modal-footer">
             <Shield size={13} className="google-footer-shield" />
             <span>
-              Apple authentication validates cryptographically signed JWT identity tokens server-side.
+              Protected with Apple Authentication
             </span>
           </div>
         </div>
