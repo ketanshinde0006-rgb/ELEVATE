@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Check, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -47,6 +47,9 @@ function RegisterPage() {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
+
   const [googleModalOpen, setGoogleModalOpen] = useState(false);
   const [appleModalOpen, setAppleModalOpen] = useState(false);
   const [microsoftModalOpen, setMicrosoftModalOpen] = useState(false);
@@ -145,7 +148,7 @@ function RegisterPage() {
             <span>E L E V A T E</span>
           </Link>
           <h1 className="auth-card__title">Create Account</h1>
-          <p className="auth-card__subtitle">Join the modern sanctuary for personal mastery</p>
+          <p className="auth-card__subtitle">Join ELEVATE for personal style and lifestyle mastery</p>
         </div>
 
         {serverError && (
@@ -154,52 +157,13 @@ function RegisterPage() {
           </div>
         )}
 
-        {/* Social Sign Up Options */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-          <button
-            type="button"
-            className="auth-social-btn"
-            onClick={() => setGoogleModalOpen(true)}
-            disabled={loading}
-          >
-            <GoogleIcon />
-            <span>Sign up with Google</span>
-          </button>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <button
-              type="button"
-              className="auth-social-btn"
-              onClick={() => setAppleModalOpen(true)}
-              disabled={loading}
-              style={{ fontSize: '13px', padding: '0 8px' }}
-            >
-              <AppleIcon />
-              <span>Apple</span>
-            </button>
-            <button
-              type="button"
-              className="auth-social-btn"
-              onClick={() => setMicrosoftModalOpen(true)}
-              disabled={loading}
-              style={{ fontSize: '13px', padding: '0 8px' }}
-            >
-              <MicrosoftIcon />
-              <span>Microsoft</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="auth-divider">
-          <span>or create with email</span>
-        </div>
-
+        {/* Registration Form */}
         <form onSubmit={handleRegisterSubmit} className="auth-form">
           <div className="auth-card__row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <Input
               label="First Name"
               name="firstName"
-              placeholder="e.g. Clara"
+              placeholder="First name"
               value={form.firstName}
               onChange={handleChange}
               required
@@ -208,7 +172,7 @@ function RegisterPage() {
             <Input
               label="Last Name"
               name="lastName"
-              placeholder="e.g. Daniels"
+              placeholder="Last name"
               value={form.lastName}
               onChange={handleChange}
             />
@@ -218,7 +182,7 @@ function RegisterPage() {
             label="Email Address"
             name="email"
             type="email"
-            placeholder="you@example.com"
+            placeholder="name@example.com"
             value={form.email}
             onChange={handleChange}
             required
@@ -226,10 +190,10 @@ function RegisterPage() {
 
           <div style={{ position: 'relative' }}>
             <Input
-              label="Password (min 8 chars)"
+              label="Password"
               name="password"
               type={showPassword ? 'text' : 'password'}
-              placeholder="Create password"
+              placeholder="At least 8 characters"
               value={form.password}
               onChange={handleChange}
               required
@@ -239,30 +203,105 @@ function RegisterPage() {
               className="auth-password-toggle"
               onClick={() => setShowPassword(!showPassword)}
               tabIndex={-1}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </div>
 
-          <Input
-            label="Confirm Password"
-            name="confirmPassword"
-            type={showPassword ? 'text' : 'password'}
-            placeholder="Confirm password"
-            value={form.confirmPassword}
-            onChange={handleChange}
-            required
-          />
+          <div style={{ position: 'relative' }}>
+            <Input
+              label="Confirm Password"
+              name="confirmPassword"
+              type={showConfirmPassword ? 'text' : 'password'}
+              placeholder="Repeat password"
+              value={form.confirmPassword}
+              onChange={handleChange}
+              required
+            />
+            <button
+              type="button"
+              className="auth-password-toggle"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              tabIndex={-1}
+              aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+            >
+              {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
 
           <Button type="submit" variant="primary" style={{ width: '100%', marginTop: 8 }} loading={loading}>
             Create Account
           </Button>
         </form>
 
-        <div className="auth-card__footer" style={{ marginTop: 24, textAlign: 'center' }}>
-          <p style={{ fontSize: '13.5px', color: 'var(--color-text-secondary)' }}>
+        {/* Social Sign Up Options */}
+        <div className="auth-divider">
+          <span>or sign up with</span>
+        </div>
+
+        <button
+          type="button"
+          className="auth-social-btn"
+          onClick={() => setGoogleModalOpen(true)}
+          disabled={loading}
+          style={{ marginBottom: 12 }}
+        >
+          <GoogleIcon />
+          <span>Continue with Google</span>
+        </button>
+
+        {/* Secondary Options Trigger */}
+        <div style={{ textAlign: 'center', marginBottom: 6 }}>
+          <button
+            type="button"
+            onClick={() => setShowMoreOptions(!showMoreOptions)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--color-text-secondary)',
+              fontSize: '12px',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              padding: '4px 8px',
+            }}
+          >
+            <span>More signup options</span>
+            {showMoreOptions ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+          </button>
+        </div>
+
+        {showMoreOptions && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+            <button
+              type="button"
+              className="auth-social-btn"
+              onClick={() => setAppleModalOpen(true)}
+              disabled={loading}
+              style={{ fontSize: '13px', padding: '0 8px', height: '40px' }}
+            >
+              <AppleIcon />
+              <span>Apple</span>
+            </button>
+            <button
+              type="button"
+              className="auth-social-btn"
+              onClick={() => setMicrosoftModalOpen(true)}
+              disabled={loading}
+              style={{ fontSize: '13px', padding: '0 8px', height: '40px' }}
+            >
+              <MicrosoftIcon />
+              <span>Microsoft</span>
+            </button>
+          </div>
+        )}
+
+        <div className="auth-card__footer" style={{ marginTop: 18, textAlign: 'center' }}>
+          <p style={{ fontSize: '13.5px', color: 'var(--color-text-secondary)', margin: 0 }}>
             Already have an account?{' '}
-            <Link to="/login" style={{ color: 'var(--color-text-primary)', fontWeight: 600, textDecoration: 'none' }}>
+            <Link to="/login" style={{ color: 'var(--color-accent-primary)', fontWeight: 600, textDecoration: 'none' }}>
               Sign In
             </Link>
           </p>

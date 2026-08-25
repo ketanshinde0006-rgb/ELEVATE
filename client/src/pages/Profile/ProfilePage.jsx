@@ -418,10 +418,10 @@ function ProfilePage() {
                     border: '1px solid var(--color-border-light)',
                   }}>
                     <div>
-                      <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Permanent User ID</span>
+                      <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Account ID</span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: '2px' }}>
                         <code style={{ fontSize: '12px', fontFamily: 'monospace', color: 'var(--color-text-primary)' }}>
-                          {user?.id ? `${user.id.slice(0, 8)}...${user.id.slice(-4)}` : '—'}
+                          {user?.id ? `••••${user.id.slice(-6)}` : '—'}
                         </code>
                         <button
                           type="button"
@@ -508,8 +508,8 @@ function ProfilePage() {
                       <Input label="First Name" name="firstName" value={form.firstName} onChange={handleChange} disabled={!editing} />
                       <Input label="Last Name" name="lastName" value={form.lastName} onChange={handleChange} disabled={!editing} />
                     </div>
-                    <Input label="Email" name="email" type="email" value={form.email} disabled hint="Email address is stored securely in MySQL and is your permanent login identifier" />
-                    <Input label="Mobile Phone" name="phone" type="tel" value={form.phone} disabled hint="Manage your verified phone in Security & Auth settings" />
+                    <Input label="Email" name="email" type="email" value={form.email} disabled hint="Your primary login email address" />
+                    <Input label="Mobile Phone" name="phone" type="tel" value={form.phone || 'Not added'} disabled hint="Manage your verified phone in Security settings" />
                     <Textarea label="Bio" name="bio" value={form.bio} onChange={handleChange} disabled={!editing} rows={3} placeholder="Tell us about yourself..." />
                   </div>
                 </Card.Body>
@@ -919,10 +919,10 @@ function ProfilePage() {
                             {sess.device === 'Mobile' ? <Smartphone size={20} /> : <Laptop size={20} />}
                             <div>
                               <strong style={{ fontSize: '13.5px', display: 'block' }}>
-                                {sess.browser} on {sess.os} {sess.isCurrent && '(This Device)'}
+                                {sess.browser || 'Web Browser'} on {sess.os || 'Desktop'} {sess.isCurrent && '(This Device)'}
                               </strong>
                               <span style={{ fontSize: '11.5px', color: 'var(--color-text-secondary)' }}>
-                                IP: {sess.ipAddress} • Last active: {new Date(sess.lastActiveAt).toLocaleString()}
+                                Last active: {new Date(sess.lastActiveAt).toLocaleString()}
                               </span>
                             </div>
                           </div>

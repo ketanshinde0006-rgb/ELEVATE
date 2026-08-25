@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Phone, Sparkles, KeyRound, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, Smartphone, Mail, Sparkles, ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import Button from '../../components/ui/Button';
@@ -61,6 +61,7 @@ function LoginPage() {
 
   // Mode: 'password' | 'phone' | 'email_otp' | 'magic_link'
   const [authMode, setAuthMode] = useState('password');
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
 
   // Form states
   const [email, setEmail] = useState('');
@@ -108,7 +109,7 @@ function LoginPage() {
       const res = await login(email.trim(), password);
       handleMfaOrNavigate(res);
     } catch (err) {
-      setServerMessage({ type: 'error', text: err.message || 'Login failed. Please check your credentials.' });
+      setServerMessage({ type: 'error', text: err.message || 'Login failed. Please check your email and password.' });
     } finally {
       setLoading(false);
     }
@@ -124,9 +125,9 @@ function LoginPage() {
     try {
       const res = await api.auth.phoneSendOtp({ phone: fullPhone });
       setOtpSent(true);
-      setServerMessage({ type: 'info', text: res.data?.message || 'Verification code dispatched via SMS.' });
+      setServerMessage({ type: 'info', text: res.data?.message || 'Verification code sent to your phone.' });
     } catch (err) {
-      setServerMessage({ type: 'error', text: err.message || 'Failed to dispatch SMS verification code.' });
+      setServerMessage({ type: 'error', text: err.message || 'Failed to send verification code.' });
     } finally {
       setLoading(false);
     }
@@ -151,11 +152,12 @@ function LoginPage() {
   // 3. Email OTP Login
   const handleSendEmailOtp = async (e) => {
     e.preventDefault();
+    if (!email.trim()) return;
     setLoading(true);
     setServerMessage({ type: '', text: '' });
 
     try {
-      const res = await api.auth.emailOtpSend({ email: email.trim() });
+      const res = await api.auth.emailSendOtp({ email: email.trim() });
       setOtpSent(true);
       setServerMessage({ type: 'info', text: res.data?.message || 'A 6-digit login code has been sent to your email.' });
     } catch (err) {
@@ -183,28 +185,31 @@ function LoginPage() {
   // 4. Magic Link Login
   const handleSendMagicLink = async (e) => {
     e.preventDefault();
+    if (!email.trim()) return;
     setLoading(true);
     setServerMessage({ type: '', text: '' });
 
     try {
-      const res = await api.auth.magicLinkSend({ email: email.trim() });
-      setServerMessage({ type: 'info', text: res.data?.message || 'Magic Link dispatched! Check your email to sign in.' });
+      const res = await loginWithMagicLinkVerify ? await api.auth.magicLinkSend({ email: email.trim() }) : null;
+      setOtpSent(true);
+      setServerMessage({ type: 'info', text: res?.data?.message || 'A sign-in link has been sent to your email.' });
     } catch (err) {
-      setServerMessage({ type: 'error', text: err.message || 'Failed to send Magic Link.' });
+      setServerMessage({ type: 'error', text: err.message || 'Failed to send sign-in link.' });
     } finally {
       setLoading(false);
     }
   };
 
-  // Social Handlers
+  // Social Auth Handlers
   const handleGoogleCredential = async (credential) => {
     setLoading(true);
     setGoogleModalOpen(false);
+    setServerMessage({ type: '', text: '' });
     try {
       const res = await loginWithGoogle({ credential });
       handleMfaOrNavigate(res);
     } catch (err) {
-      setServerMessage({ type: 'error', text: err.message || 'Google authentication failed.' });
+      setServerMessage({ type: 'error', text: err.message || 'Google sign in failed.' });
     } finally {
       setLoading(false);
     }
@@ -213,11 +218,12 @@ function LoginPage() {
   const handleAppleCredential = async (payload) => {
     setLoading(true);
     setAppleModalOpen(false);
+    setServerMessage({ type: '', text: '' });
     try {
       const res = await loginWithApple(payload);
       handleMfaOrNavigate(res);
     } catch (err) {
-      setServerMessage({ type: 'error', text: err.message || 'Apple authentication failed.' });
+      setServerMessage({ type: 'error', text: err.message || 'Apple sign in failed.' });
     } finally {
       setLoading(false);
     }
@@ -226,11 +232,12 @@ function LoginPage() {
   const handleMicrosoftCredential = async (payload) => {
     setLoading(true);
     setMicrosoftModalOpen(false);
+    setServerMessage({ type: '', text: '' });
     try {
       const res = await loginWithMicrosoft(payload);
       handleMfaOrNavigate(res);
     } catch (err) {
-      setServerMessage({ type: 'error', text: err.message || 'Microsoft authentication failed.' });
+      setServerMessage({ type: 'error', text: err.message || 'Microsoft sign in failed.' });
     } finally {
       setLoading(false);
     }
@@ -246,15 +253,23 @@ function LoginPage() {
     }
   };
 
+  const resetToPasswordMode = () => {
+    setAuthMode('password');
+    setOtpSent(false);
+    setOtpCode('');
+    setServerMessage({ type: '', text: '' });
+  };
+
   return (
     <div className="auth-page">
-      {/* Modals */}
+      {/* Social Modals */}
       <GoogleAuthModal isOpen={googleModalOpen} onClose={() => setGoogleModalOpen(false)} onCredentialResponse={handleGoogleCredential} />
       <AppleAuthModal isOpen={appleModalOpen} onClose={() => setAppleModalOpen(false)} onCredentialResponse={handleAppleCredential} />
       <MicrosoftAuthModal isOpen={microsoftModalOpen} onClose={() => setMicrosoftModalOpen(false)} onCredentialResponse={handleMicrosoftCredential} />
       <MfaLoginModal isOpen={mfaModalOpen} tempToken={tempMfaToken} onClose={() => setMfaModalOpen(false)} onVerifySuccess={handleMfaSuccess} />
 
       <div className="auth-card animate-fade-in-up">
+        {/* Header */}
         <div className="auth-card__header">
           <Link to="/" className="auth-card__logo" aria-label="ELEVATE Home">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -264,9 +279,10 @@ function LoginPage() {
             <span>E L E V A T E</span>
           </Link>
           <h1 className="auth-card__title">Welcome Back</h1>
-          <p className="auth-card__subtitle">Sign in to your personal sanctuary</p>
+          <p className="auth-card__subtitle">Sign in to continue your journey</p>
         </div>
 
+        {/* Status / Alert Message */}
         {serverMessage.text && (
           <div
             className={`alert ${serverMessage.type === 'error' ? 'alert--error' : 'alert--info'}`}
@@ -276,266 +292,342 @@ function LoginPage() {
           </div>
         )}
 
-        {/* Social Authentication Row */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-          <button
-            type="button"
-            className="auth-social-btn"
-            onClick={() => setGoogleModalOpen(true)}
-            disabled={loading}
-          >
-            <GoogleIcon />
-            <span>Continue with Google</span>
-          </button>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <button
-              type="button"
-              className="auth-social-btn"
-              onClick={() => setAppleModalOpen(true)}
-              disabled={loading}
-              style={{ fontSize: '13px', padding: '0 8px' }}
-            >
-              <AppleIcon />
-              <span>Apple</span>
-            </button>
-            <button
-              type="button"
-              className="auth-social-btn"
-              onClick={() => setMicrosoftModalOpen(true)}
-              disabled={loading}
-              style={{ fontSize: '13px', padding: '0 8px' }}
-            >
-              <MicrosoftIcon />
-              <span>Microsoft</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className="auth-divider">
-          <span>or sign in with</span>
-        </div>
-
-        {/* Auth Method Navigation */}
-        <div className="auth-method-tabs" style={{ marginBottom: 20 }}>
-          <button
-            type="button"
-            className={`auth-method-tab ${authMode === 'password' ? 'auth-method-tab--active' : ''}`}
-            onClick={() => { setAuthMode('password'); setOtpSent(false); setServerMessage({ type: '', text: '' }); }}
-          >
-            Password
-          </button>
-          <button
-            type="button"
-            className={`auth-method-tab ${authMode === 'phone' ? 'auth-method-tab--active' : ''}`}
-            onClick={() => { setAuthMode('phone'); setOtpSent(false); setServerMessage({ type: '', text: '' }); }}
-          >
-            Mobile SMS
-          </button>
-          <button
-            type="button"
-            className={`auth-method-tab ${authMode === 'email_otp' ? 'auth-method-tab--active' : ''}`}
-            onClick={() => { setAuthMode('email_otp'); setOtpSent(false); setServerMessage({ type: '', text: '' }); }}
-          >
-            Email Code
-          </button>
-          <button
-            type="button"
-            className={`auth-method-tab ${authMode === 'magic_link' ? 'auth-method-tab--active' : ''}`}
-            onClick={() => { setAuthMode('magic_link'); setOtpSent(false); setServerMessage({ type: '', text: '' }); }}
-          >
-            Magic Link
-          </button>
-        </div>
-
-        {/* Mode 1: Email + Password */}
+        {/* ── 1. Primary Flow: Email & Password ── */}
         {authMode === 'password' && (
-          <form onSubmit={handlePasswordLogin} className="auth-form">
-            <Input
-              label="Email Address"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoFocus
-            />
-
-            <div style={{ position: 'relative' }}>
+          <>
+            <form onSubmit={handlePasswordLogin} className="auth-form">
               <Input
-                label="Password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Enter password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                label="Email Address"
+                type="email"
+                placeholder="name@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
+                autoFocus
               />
+
+              <div style={{ position: 'relative' }}>
+                <Input
+                  label="Password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="auth-password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4, marginBottom: 16 }}>
+                <Link to="/forgot-password" style={{ fontSize: '12.5px', color: 'var(--color-accent-primary)', textDecoration: 'none' }}>
+                  Forgot password?
+                </Link>
+              </div>
+
+              <Button type="submit" variant="primary" style={{ width: '100%' }} loading={loading}>
+                Sign In
+              </Button>
+            </form>
+
+            {/* Social Divider */}
+            <div className="auth-divider">
+              <span>or continue with</span>
+            </div>
+
+            {/* Prominent Google Sign-In Button */}
+            <button
+              type="button"
+              className="auth-social-btn"
+              onClick={() => setGoogleModalOpen(true)}
+              disabled={loading}
+              style={{ marginBottom: 16 }}
+            >
+              <GoogleIcon />
+              <span>Continue with Google</span>
+            </button>
+
+            {/* Subtle More Sign-in Options Trigger */}
+            <div style={{ textAlign: 'center', marginBottom: 8 }}>
               <button
                 type="button"
-                className="auth-password-toggle"
-                onClick={() => setShowPassword(!showPassword)}
-                tabIndex={-1}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                onClick={() => setShowMoreOptions(!showMoreOptions)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--color-text-secondary)',
+                  fontSize: '12.5px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  padding: '6px 10px',
+                  borderRadius: 6,
+                  transition: 'color var(--transition-fast)',
+                }}
               >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                <span>More sign-in options</span>
+                {showMoreOptions ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               </button>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4, marginBottom: 16 }}>
-              <Link to="/forgot-password" style={{ fontSize: '12px', color: 'var(--color-accent-primary)', textDecoration: 'none' }}>
-                Forgot password?
-              </Link>
-            </div>
-
-            <Button type="submit" variant="primary" style={{ width: '100%' }} loading={loading}>
-              Sign In
-            </Button>
-          </form>
-        )}
-
-        {/* Mode 2: Mobile SMS OTP */}
-        {authMode === 'phone' && (
-          <form onSubmit={otpSent ? handleVerifyPhoneOtp : handleSendPhoneOtp} className="auth-form">
-            <div className="auth-phone-row" style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-              <div style={{ width: '110px' }}>
-                <label className="input__label">Country</label>
-                <select
-                  value={countryCode}
-                  onChange={(e) => setCountryCode(e.target.value)}
-                  disabled={otpSent}
-                  className="input__field"
-                  style={{ height: '42px', padding: '0 8px' }}
+            {/* Secondary Options Drawer / Popdown */}
+            {showMoreOptions && (
+              <div
+                style={{
+                  background: 'var(--color-bg-secondary)',
+                  border: '1px solid var(--color-border-light)',
+                  borderRadius: '12px',
+                  padding: '14px',
+                  marginBottom: 16,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 8,
+                }}
+              >
+                <button
+                  type="button"
+                  className="auth-social-btn"
+                  onClick={() => { setAuthMode('phone'); setServerMessage({ type: '', text: '' }); }}
+                  style={{ height: '40px', fontSize: '13px', background: '#FFFFFF' }}
                 >
-                  {COUNTRY_CODES.map((c) => (
-                    <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
-                  ))}
-                </select>
+                  <Smartphone size={16} />
+                  <span>Use Mobile Number (SMS Code)</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="auth-social-btn"
+                  onClick={() => { setAuthMode('email_otp'); setServerMessage({ type: '', text: '' }); }}
+                  style={{ height: '40px', fontSize: '13px', background: '#FFFFFF' }}
+                >
+                  <Mail size={16} />
+                  <span>Email me a login code</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="auth-social-btn"
+                  onClick={() => { setAuthMode('magic_link'); setServerMessage({ type: '', text: '' }); }}
+                  style={{ height: '40px', fontSize: '13px', background: '#FFFFFF' }}
+                >
+                  <Sparkles size={16} />
+                  <span>Send a magic sign-in link</span>
+                </button>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <button
+                    type="button"
+                    className="auth-social-btn"
+                    onClick={() => setAppleModalOpen(true)}
+                    disabled={loading}
+                    style={{ height: '40px', fontSize: '13px', padding: '0 8px', background: '#FFFFFF' }}
+                  >
+                    <AppleIcon />
+                    <span>Apple</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="auth-social-btn"
+                    onClick={() => setMicrosoftModalOpen(true)}
+                    disabled={loading}
+                    style={{ height: '40px', fontSize: '13px', padding: '0 8px', background: '#FFFFFF' }}
+                  >
+                    <MicrosoftIcon />
+                    <span>Microsoft</span>
+                  </button>
+                </div>
               </div>
-              <div style={{ flex: 1 }}>
-                <Input
-                  label="Mobile Number"
-                  type="tel"
-                  placeholder="555 0199"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  disabled={otpSent}
-                  required
-                  autoFocus
-                />
+            )}
+          </>
+        )}
+
+        {/* ── 2. Secondary Flow: Mobile Number (SMS OTP) ── */}
+        {authMode === 'phone' && (
+          <div>
+            <form onSubmit={otpSent ? handleVerifyPhoneOtp : handleSendPhoneOtp} className="auth-form">
+              <div className="auth-phone-row" style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+                <div style={{ width: '110px' }}>
+                  <label className="input__label" style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: 4 }}>Country</label>
+                  <select
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    disabled={otpSent}
+                    className="input__field"
+                    style={{ height: '42px', padding: '0 8px', width: '100%', borderRadius: 6, border: '1px solid var(--color-border-light)', background: '#FFFFFF' }}
+                  >
+                    {COUNTRY_CODES.map((c) => (
+                      <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
+                    ))}
+                  </select>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <Input
+                    label="Mobile Number"
+                    type="tel"
+                    placeholder="555 0199"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    disabled={otpSent}
+                    required
+                    autoFocus
+                  />
+                </div>
               </div>
+
+              {otpSent && (
+                <div style={{ marginBottom: 16 }}>
+                  <Input
+                    label="6-Digit Verification Code"
+                    placeholder="123456"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value)}
+                    required
+                    autoFocus
+                    style={{ textAlign: 'center', letterSpacing: '0.25em', fontSize: '18px', fontWeight: 600 }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
+                    <button
+                      type="button"
+                      onClick={() => { setOtpSent(false); setOtpCode(''); }}
+                      style={{ background: 'none', border: 'none', color: 'var(--color-text-secondary)', fontSize: '12px', cursor: 'pointer' }}
+                    >
+                      Change number
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSendPhoneOtp}
+                      style={{ background: 'none', border: 'none', color: 'var(--color-accent-primary)', fontSize: '12px', cursor: 'pointer' }}
+                    >
+                      Resend code
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <Button type="submit" variant="primary" style={{ width: '100%' }} loading={loading}>
+                {otpSent ? 'Verify & Sign In' : 'Send Verification Code'}
+              </Button>
+            </form>
+
+            <div style={{ textAlign: 'center', marginTop: 16 }}>
+              <button
+                type="button"
+                onClick={resetToPasswordMode}
+                style={{ background: 'none', border: 'none', color: 'var(--color-accent-primary)', fontSize: '12.5px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+              >
+                <ArrowLeft size={14} /> Back to email sign in
+              </button>
             </div>
-
-            {otpSent && (
-              <div style={{ marginBottom: 16 }}>
-                <Input
-                  label="6-Digit SMS Verification Code"
-                  placeholder="123456"
-                  value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value)}
-                  required
-                  autoFocus
-                  style={{ textAlign: 'center', letterSpacing: '0.25em', fontSize: '18px', fontWeight: 600 }}
-                />
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-                  <button
-                    type="button"
-                    onClick={() => { setOtpSent(false); setOtpCode(''); }}
-                    style={{ background: 'none', border: 'none', color: 'var(--color-text-secondary)', fontSize: '12px', cursor: 'pointer' }}
-                  >
-                    Change phone number
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSendPhoneOtp}
-                    style={{ background: 'none', border: 'none', color: 'var(--color-accent-primary)', fontSize: '12px', cursor: 'pointer' }}
-                  >
-                    Resend SMS
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <Button type="submit" variant="primary" style={{ width: '100%' }} loading={loading}>
-              {otpSent ? 'Verify Code & Sign In' : 'Send Verification Code via SMS'}
-            </Button>
-          </form>
+          </div>
         )}
 
-        {/* Mode 3: Email OTP Login */}
+        {/* ── 3. Secondary Flow: Email OTP Code ── */}
         {authMode === 'email_otp' && (
-          <form onSubmit={otpSent ? handleVerifyEmailOtp : handleSendEmailOtp} className="auth-form">
-            <Input
-              label="Email Address"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={otpSent}
-              required
-              autoFocus
-            />
+          <div>
+            <form onSubmit={otpSent ? handleVerifyEmailOtp : handleSendEmailOtp} className="auth-form">
+              <Input
+                label="Email Address"
+                type="email"
+                placeholder="name@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={otpSent}
+                required
+                autoFocus
+              />
 
-            {otpSent && (
-              <div style={{ marginBottom: 16 }}>
-                <Input
-                  label="6-Digit Email Code"
-                  placeholder="123456"
-                  value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value)}
-                  required
-                  autoFocus
-                  style={{ textAlign: 'center', letterSpacing: '0.25em', fontSize: '18px', fontWeight: 600 }}
-                />
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-                  <button
-                    type="button"
-                    onClick={() => { setOtpSent(false); setOtpCode(''); }}
-                    style={{ background: 'none', border: 'none', color: 'var(--color-text-secondary)', fontSize: '12px', cursor: 'pointer' }}
-                  >
-                    Change email
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSendEmailOtp}
-                    style={{ background: 'none', border: 'none', color: 'var(--color-accent-primary)', fontSize: '12px', cursor: 'pointer' }}
-                  >
-                    Resend code
-                  </button>
+              {otpSent && (
+                <div style={{ marginBottom: 16 }}>
+                  <Input
+                    label="6-Digit Login Code"
+                    placeholder="123456"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value)}
+                    required
+                    autoFocus
+                    style={{ textAlign: 'center', letterSpacing: '0.25em', fontSize: '18px', fontWeight: 600 }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
+                    <button
+                      type="button"
+                      onClick={() => { setOtpSent(false); setOtpCode(''); }}
+                      style={{ background: 'none', border: 'none', color: 'var(--color-text-secondary)', fontSize: '12px', cursor: 'pointer' }}
+                    >
+                      Change email
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSendEmailOtp}
+                      style={{ background: 'none', border: 'none', color: 'var(--color-accent-primary)', fontSize: '12px', cursor: 'pointer' }}
+                    >
+                      Resend code
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            <Button type="submit" variant="primary" style={{ width: '100%' }} loading={loading}>
-              {otpSent ? 'Verify Code & Sign In' : 'Email Me a Login Code'}
-            </Button>
-          </form>
+              <Button type="submit" variant="primary" style={{ width: '100%' }} loading={loading}>
+                {otpSent ? 'Verify & Sign In' : 'Send Login Code'}
+              </Button>
+            </form>
+
+            <div style={{ textAlign: 'center', marginTop: 16 }}>
+              <button
+                type="button"
+                onClick={resetToPasswordMode}
+                style={{ background: 'none', border: 'none', color: 'var(--color-accent-primary)', fontSize: '12.5px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+              >
+                <ArrowLeft size={14} /> Back to password sign in
+              </button>
+            </div>
+          </div>
         )}
 
-        {/* Mode 4: Magic Link Login */}
+        {/* ── 4. Secondary Flow: Magic Link ── */}
         {authMode === 'magic_link' && (
-          <form onSubmit={handleSendMagicLink} className="auth-form">
-            <Input
-              label="Email Address"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoFocus
-              hint="We will email you a secure link that logs you in instantly."
-            />
+          <div>
+            <form onSubmit={handleSendMagicLink} className="auth-form">
+              <Input
+                label="Email Address"
+                type="email"
+                placeholder="name@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoFocus
+              />
 
-            <Button type="submit" variant="primary" style={{ width: '100%', marginTop: 8 }} loading={loading}>
-              Send Magic Link
-            </Button>
-          </form>
+              <Button type="submit" variant="primary" style={{ width: '100%', marginTop: 8 }} loading={loading}>
+                Send Magic Link
+              </Button>
+            </form>
+
+            <div style={{ textAlign: 'center', marginTop: 16 }}>
+              <button
+                type="button"
+                onClick={resetToPasswordMode}
+                style={{ background: 'none', border: 'none', color: 'var(--color-accent-primary)', fontSize: '12.5px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+              >
+                <ArrowLeft size={14} /> Back to password sign in
+              </button>
+            </div>
+          </div>
         )}
 
+        {/* Card Footer */}
         <div className="auth-card__footer" style={{ marginTop: 24, textAlign: 'center' }}>
-          <p style={{ fontSize: '13.5px', color: 'var(--color-text-secondary)' }}>
+          <p style={{ fontSize: '13.5px', color: 'var(--color-text-secondary)', margin: 0 }}>
             Don't have an account?{' '}
-            <Link to="/register" style={{ color: 'var(--color-text-primary)', fontWeight: 600, textDecoration: 'none' }}>
+            <Link to="/register" style={{ color: 'var(--color-accent-primary)', fontWeight: 600, textDecoration: 'none' }}>
               Create Account
             </Link>
           </p>

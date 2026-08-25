@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Shield,
-  KeyRound,
   Lock,
   Smartphone,
   Laptop,
@@ -13,15 +12,11 @@ import {
   QrCode,
   LogOut,
   ScrollText,
-  UserCheck,
   User,
-  Mail,
-  Phone,
-  FileText,
-  Bell,
   Eye,
   EyeOff,
   Save,
+  KeyRound,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
@@ -39,9 +34,7 @@ export function AdminAccount() {
     firstName: '',
     lastName: '',
     phone: '',
-    bio: '',
     avatar: '',
-    emailAlerts: true,
   });
 
   // Password Form State & Visibility
@@ -76,9 +69,7 @@ export function AdminAccount() {
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         phone: user.phone || '',
-        bio: user.bio || '',
         avatar: user.avatar || '',
-        emailAlerts: user.emailNotifications !== false,
       });
     }
   }, [user]);
@@ -88,7 +79,7 @@ export function AdminAccount() {
     try {
       const [sessionsRes, auditRes] = await Promise.all([
         api.auth.getSessions().catch(() => ({ data: [] })),
-        api.admin.auditLog({ limit: 12 }).catch(() => ({ data: { logs: [] } })),
+        api.admin.auditLog({ limit: 10 }).catch(() => ({ data: { logs: [] } })),
       ]);
       setSessions(sessionsRes.data || []);
       setAuditLogs(auditRes.data?.logs || auditRes.data || []);
@@ -113,10 +104,10 @@ export function AdminAccount() {
 
   // ── Profile Updates ──
   const handleProfileChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setProfileForm((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: value,
     }));
     setStatusMessage({ type: '', text: '' });
   };
@@ -129,14 +120,12 @@ export function AdminAccount() {
       await updateUser({
         firstName: profileForm.firstName.trim(),
         lastName: profileForm.lastName.trim(),
-        phone: profileForm.phone.trim(),
-        bio: profileForm.bio.trim(),
-        avatar: profileForm.avatar.trim(),
-        emailNotifications: profileForm.emailAlerts,
+        phone: profileForm.phone.trim() || null,
+        avatar: profileForm.avatar.trim() || null,
       });
-      setStatusMessage({ type: 'success', text: 'Administrator profile settings updated successfully.' });
+      setStatusMessage({ type: 'success', text: 'Admin profile updated successfully.' });
     } catch (err) {
-      setStatusMessage({ type: 'error', text: err.message || 'Failed to update administrator profile.' });
+      setStatusMessage({ type: 'error', text: err.message || 'Failed to update profile.' });
     } finally {
       setSaving(false);
     }
@@ -151,15 +140,15 @@ export function AdminAccount() {
   const handleUpdatePassword = async (e) => {
     e.preventDefault();
     if (!passwordForm.currentPassword) {
-      setStatusMessage({ type: 'error', text: 'Current password is required' });
+      setStatusMessage({ type: 'error', text: 'Current password is required.' });
       return;
     }
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setStatusMessage({ type: 'error', text: 'New passwords do not match' });
+      setStatusMessage({ type: 'error', text: 'New passwords do not match.' });
       return;
     }
     if (passwordForm.newPassword.length < 8) {
-      setStatusMessage({ type: 'error', text: 'Password must be at least 8 characters' });
+      setStatusMessage({ type: 'error', text: 'Password must be at least 8 characters long.' });
       return;
     }
 
@@ -172,10 +161,10 @@ export function AdminAccount() {
         confirmPassword: passwordForm.confirmPassword,
       });
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
-      setStatusMessage({ type: 'success', text: res.message || 'Administrator password updated successfully' });
+      setStatusMessage({ type: 'success', text: res.message || 'Password updated successfully.' });
       fetchAccountSecurityData();
     } catch (err) {
-      setStatusMessage({ type: 'error', text: err.message || 'Failed to update administrator password' });
+      setStatusMessage({ type: 'error', text: err.message || 'Failed to update password.' });
     } finally {
       setSaving(false);
     }
@@ -189,7 +178,7 @@ export function AdminAccount() {
       const res = await api.auth.mfaSetup();
       setMfaSetupData(res.data);
     } catch (err) {
-      setStatusMessage({ type: 'error', text: err.message || 'Failed to generate 2FA setup' });
+      setStatusMessage({ type: 'error', text: err.message || 'Failed to generate 2FA setup.' });
     } finally {
       setSaving(false);
     }
@@ -205,11 +194,11 @@ export function AdminAccount() {
       const res = await api.auth.mfaEnable({ token: mfaVerifyCode.trim() });
       setMfaSetupData(null);
       setMfaVerifyCode('');
-      setStatusMessage({ type: 'success', text: res.message || 'Two-Factor Authentication is now active on your administrator account!' });
+      setStatusMessage({ type: 'success', text: res.message || 'Two-Factor Authentication is now enabled.' });
       await updateUser({});
       fetchAccountSecurityData();
     } catch (err) {
-      setStatusMessage({ type: 'error', text: err.message || 'Invalid authenticator code' });
+      setStatusMessage({ type: 'error', text: err.message || 'Invalid authenticator code.' });
     } finally {
       setSaving(false);
     }
@@ -223,11 +212,11 @@ export function AdminAccount() {
       const res = await api.auth.mfaDisable({ code: mfaDisableCode.trim() });
       setMfaDisabling(false);
       setMfaDisableCode('');
-      setStatusMessage({ type: 'success', text: res.message || 'Two-Factor Authentication disabled' });
+      setStatusMessage({ type: 'success', text: res.message || 'Two-Factor Authentication disabled.' });
       await updateUser({});
       fetchAccountSecurityData();
     } catch (err) {
-      setStatusMessage({ type: 'error', text: err.message || 'Failed to disable 2FA' });
+      setStatusMessage({ type: 'error', text: err.message || 'Failed to disable 2FA.' });
     } finally {
       setSaving(false);
     }
@@ -240,10 +229,10 @@ export function AdminAccount() {
     try {
       const refreshToken = localStorage.getItem('elevate_refresh_token');
       const res = await api.auth.revokeOtherSessions({ refreshToken });
-      setStatusMessage({ type: 'success', text: res.message || 'All other active administrator sessions have been signed out.' });
+      setStatusMessage({ type: 'success', text: res.message || 'All other active sessions have been signed out.' });
       fetchAccountSecurityData();
     } catch (err) {
-      setStatusMessage({ type: 'error', text: err.message || 'Failed to revoke other sessions' });
+      setStatusMessage({ type: 'error', text: err.message || 'Failed to sign out other sessions.' });
     } finally {
       setSaving(false);
     }
@@ -255,7 +244,7 @@ export function AdminAccount() {
       await api.auth.revokeSession(sessionId);
       fetchAccountSecurityData();
     } catch (err) {
-      setStatusMessage({ type: 'error', text: err.message || 'Failed to revoke session' });
+      setStatusMessage({ type: 'error', text: err.message || 'Failed to revoke session.' });
     } finally {
       setSaving(false);
     }
@@ -269,14 +258,16 @@ export function AdminAccount() {
     );
   }
 
+  const maskedId = user?.id ? `••••${user.id.slice(-6)}` : '—';
+
   return (
     <div>
       <div className="admin-module__header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 className="admin-module__title">Administrator Profile & Security</h1>
-          <p className="admin-module__subtitle">Manage operator identity, system privileges, authentication, and security audit trail</p>
+          <h1 className="admin-module__title">Admin Account</h1>
+          <p className="admin-module__subtitle">Manage your profile details, password, two-factor authentication, and sessions</p>
         </div>
-        <button className="admin-btn admin-btn--secondary" onClick={fetchAccountSecurityData} disabled={saving}>
+        <button className="admin-btn admin-btn--secondary" onClick={fetchAccountSecurityData} disabled={saving} style={{ fontSize: '12px' }}>
           <RefreshCw size={14} /> Refresh
         </button>
       </div>
@@ -302,7 +293,7 @@ export function AdminAccount() {
         </div>
       )}
 
-      {/* Admin Tab Navigation */}
+      {/* Tab Navigation */}
       <div style={{ display: 'flex', gap: 8, borderBottom: '1px solid var(--color-border)', marginBottom: 'var(--space-6)' }}>
         <button
           onClick={() => setActiveTab('profile')}
@@ -320,7 +311,7 @@ export function AdminAccount() {
             gap: 6,
           }}
         >
-          <User size={15} /> Profile & Operator Details
+          <User size={15} /> Profile
         </button>
         <button
           onClick={() => setActiveTab('security')}
@@ -338,7 +329,7 @@ export function AdminAccount() {
             gap: 6,
           }}
         >
-          <Shield size={15} /> Credentials & 2FA Security
+          <Shield size={15} /> Security & 2FA
         </button>
         <button
           onClick={() => setActiveTab('audit')}
@@ -356,37 +347,36 @@ export function AdminAccount() {
             gap: 6,
           }}
         >
-          <ScrollText size={15} /> Security Events Trail
+          <ScrollText size={15} /> Activity Trail
         </button>
       </div>
 
-      {/* ── TAB 1: Profile & Operator Details ── */}
+      {/* ── TAB 1: Profile ── */}
       {activeTab === 'profile' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 'var(--space-6)' }}>
-          {/* Identity Card */}
+          {/* Identity Summary Card */}
           <div className="admin-panel">
             <div className="admin-panel__header">
               <h2 className="admin-panel__title">
-                <UserCheck size={18} style={{ color: 'var(--color-accent-primary)' }} />
-                Operator Identification
+                <User size={18} style={{ color: 'var(--color-accent-primary)' }} />
+                Admin Profile
               </h2>
-              <span className="admin-badge admin-badge--gold">ROLE: ADMINISTRATOR</span>
+              <span className="admin-badge admin-badge--gold">Administrator</span>
             </div>
             <div className="admin-panel__body">
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
                 <div style={{
-                  width: 56,
-                  height: 56,
+                  width: 54,
+                  height: 54,
                   borderRadius: '50%',
                   background: 'linear-gradient(135deg, #C5A880 0%, #7E6D56 100%)',
                   color: '#FAF8F5',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '20px',
+                  fontSize: '18px',
                   fontWeight: 700,
                   flexShrink: 0,
-                  boxShadow: '0 2px 10px rgba(197, 168, 128, 0.3)',
                 }}>
                   {profileForm.avatar ? (
                     <img src={profileForm.avatar} alt="Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
@@ -398,42 +388,58 @@ export function AdminAccount() {
                   <h3 style={{ margin: 0, fontSize: '16px', color: 'var(--color-text-primary)' }}>
                     {user?.firstName} {user?.lastName}
                   </h3>
-                  <div style={{ fontSize: '12px', color: 'var(--color-text-tertiary)', marginTop: 2 }}>
-                    Primary Email: {user?.email}
+                  <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginTop: 2 }}>
+                    {user?.email}
                   </div>
                 </div>
               </div>
 
-              <div style={{ background: 'var(--color-bg-secondary)', padding: '12px 16px', borderRadius: '6px', border: '1px solid var(--color-border-light)', marginBottom: 16 }}>
-                <span style={{ fontSize: '10.5px', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Permanent UUID</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-                  <code style={{ fontSize: '12px', fontFamily: 'monospace', color: 'var(--color-text-primary)' }}>
-                    {user?.id}
-                  </code>
-                  <button
-                    type="button"
-                    onClick={handleCopyId}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-accent-primary)', padding: 2 }}
-                    title="Copy UUID"
-                  >
-                    {copiedId ? <Check size={13} /> : <Copy size={13} />}
-                  </button>
+              <div style={{
+                background: 'var(--color-bg-secondary)',
+                padding: '12px 14px',
+                borderRadius: '6px',
+                border: '1px solid var(--color-border-light)',
+                marginBottom: 16,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}>
+                <div>
+                  <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Account ID</span>
+                  <div style={{ fontFamily: 'monospace', fontSize: '13px', color: 'var(--color-text-primary)', marginTop: 2 }}>
+                    {maskedId}
+                  </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={handleCopyId}
+                  className="admin-btn admin-btn--secondary"
+                  style={{ fontSize: '11px', padding: '4px 10px' }}
+                >
+                  {copiedId ? <Check size={12} /> : <Copy size={12} />}
+                  <span>{copiedId ? 'Copied' : 'Copy ID'}</span>
+                </button>
               </div>
 
-              <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
-                Account Provisioned: {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—'}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: '12.5px', color: 'var(--color-text-secondary)' }}>
+                <div>
+                  <span style={{ color: 'var(--color-text-tertiary)' }}>Phone: </span>
+                  <span style={{ color: 'var(--color-text-primary)' }}>{user?.phone || 'Not added'}</span>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--color-text-tertiary)' }}>Member Since: </span>
+                  <span style={{ color: 'var(--color-text-primary)' }}>
+                    {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—'}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Edit Profile Form */}
+          {/* Edit Profile Details */}
           <div className="admin-panel">
             <div className="admin-panel__header">
-              <h2 className="admin-panel__title">
-                <User size={18} style={{ color: 'var(--color-accent-primary)' }} />
-                Edit Operator Settings
-              </h2>
+              <h2 className="admin-panel__title">Edit Details</h2>
             </div>
             <div className="admin-panel__body">
               <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
@@ -464,7 +470,6 @@ export function AdminAccount() {
                       name="lastName"
                       value={profileForm.lastName}
                       onChange={handleProfileChange}
-                      required
                       style={{
                         width: '100%',
                         padding: '8px 12px',
@@ -483,7 +488,7 @@ export function AdminAccount() {
                   <input
                     type="tel"
                     name="phone"
-                    placeholder="+1 555-0199"
+                    placeholder="Enter phone number (optional)"
                     value={profileForm.phone}
                     onChange={handleProfileChange}
                     style={{
@@ -499,7 +504,7 @@ export function AdminAccount() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: 4 }}>Avatar Image URL</label>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: 4 }}>Profile Photo URL</label>
                   <input
                     type="url"
                     name="avatar"
@@ -518,43 +523,8 @@ export function AdminAccount() {
                   />
                 </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: 4 }}>Operator Bio & Notes</label>
-                  <textarea
-                    name="bio"
-                    rows={3}
-                    placeholder="Administrator operational scope and responsibilities..."
-                    value={profileForm.bio}
-                    onChange={handleProfileChange}
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      borderRadius: '6px',
-                      border: '1px solid var(--color-border-light)',
-                      background: 'var(--color-bg-primary)',
-                      color: 'var(--color-text-primary)',
-                      fontSize: '13px',
-                      resize: 'vertical',
-                    }}
-                  />
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '8px 0' }}>
-                  <input
-                    type="checkbox"
-                    id="emailAlerts"
-                    name="emailAlerts"
-                    checked={profileForm.emailAlerts}
-                    onChange={handleProfileChange}
-                    style={{ accentColor: 'var(--color-accent-primary)' }}
-                  />
-                  <label htmlFor="emailAlerts" style={{ fontSize: '12.5px', color: 'var(--color-text-primary)', cursor: 'pointer' }}>
-                    Receive operational security alerts & system notifications
-                  </label>
-                </div>
-
-                <button type="submit" className="admin-btn admin-btn--primary" disabled={saving} style={{ alignSelf: 'flex-start' }}>
-                  <Save size={14} /> {saving ? 'Saving...' : 'Save Profile Changes'}
+                <button type="submit" className="admin-btn admin-btn--primary" disabled={saving} style={{ alignSelf: 'flex-start', marginTop: 4 }}>
+                  <Save size={14} /> {saving ? 'Saving...' : 'Save Changes'}
                 </button>
               </form>
             </div>
@@ -562,25 +532,24 @@ export function AdminAccount() {
         </div>
       )}
 
-      {/* ── TAB 2: Credentials & 2FA Security ── */}
+      {/* ── TAB 2: Security & 2FA ── */}
       {activeTab === 'security' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 'var(--space-6)' }}>
-            {/* Password Security Form with Show Password Toggles */}
+            {/* Change Password */}
             <div className="admin-panel">
               <div className="admin-panel__header">
                 <h2 className="admin-panel__title">
                   <Lock size={18} style={{ color: 'var(--color-accent-primary)' }} />
-                  Change Administrator Password
+                  Change Password
                 </h2>
               </div>
               <div className="admin-panel__body">
                 <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-4)' }}>
-                  Password must be at least 8 characters and is hashed with bcrypt (12 rounds).
+                  Use at least 8 characters and choose a password you don't use elsewhere.
                 </p>
 
                 <form onSubmit={handleUpdatePassword} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                  {/* Current Password */}
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: 4 }}>Current Password</label>
                     <div style={{ position: 'relative' }}>
@@ -618,21 +587,20 @@ export function AdminAccount() {
                           display: 'flex',
                           alignItems: 'center',
                         }}
-                        title={showCurrentPassword ? 'Hide Password' : 'Show Password'}
+                        title={showCurrentPassword ? 'Hide password' : 'Show password'}
                       >
                         {showCurrentPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                       </button>
                     </div>
                   </div>
 
-                  {/* New Password */}
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: 4 }}>New Password</label>
                     <div style={{ position: 'relative' }}>
                       <input
                         type={showNewPassword ? 'text' : 'password'}
                         name="newPassword"
-                        placeholder="Enter new password (min 8 chars)"
+                        placeholder="New password (min 8 chars)"
                         value={passwordForm.newPassword}
                         onChange={handlePasswordChange}
                         required
@@ -663,14 +631,13 @@ export function AdminAccount() {
                           display: 'flex',
                           alignItems: 'center',
                         }}
-                        title={showNewPassword ? 'Hide Password' : 'Show Password'}
+                        title={showNewPassword ? 'Hide password' : 'Show password'}
                       >
                         {showNewPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                       </button>
                     </div>
                   </div>
 
-                  {/* Confirm New Password (with Show Password at last textbox) */}
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: 4 }}>Confirm New Password</label>
                     <div style={{ position: 'relative' }}>
@@ -708,7 +675,7 @@ export function AdminAccount() {
                           display: 'flex',
                           alignItems: 'center',
                         }}
-                        title={showConfirmPassword ? 'Hide Password' : 'Show Password'}
+                        title={showConfirmPassword ? 'Hide password' : 'Show password'}
                       >
                         {showConfirmPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                       </button>
@@ -727,17 +694,17 @@ export function AdminAccount() {
               <div className="admin-panel__header">
                 <h2 className="admin-panel__title">
                   <Shield size={18} style={{ color: 'var(--color-accent-primary)' }} />
-                  Two-Factor Authentication (TOTP)
+                  Two-Factor Authentication
                 </h2>
-                {user?.twoFactorEnabled && (
-                  <span className="admin-badge admin-badge--green" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                    <CheckCircle2 size={11} /> 2FA Active
-                  </span>
+                {user?.twoFactorEnabled ? (
+                  <span className="admin-badge admin-badge--green">Enabled</span>
+                ) : (
+                  <span className="admin-badge" style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-text-tertiary)' }}>Off</span>
                 )}
               </div>
               <div className="admin-panel__body">
                 <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-4)' }}>
-                  Protect platform administrative access with time-based one-time passwords (RFC 6238).
+                  Add an extra layer of security to your admin account using an authenticator app.
                 </p>
 
                 {user?.twoFactorEnabled ? (
@@ -746,17 +713,16 @@ export function AdminAccount() {
                       display: 'flex',
                       alignItems: 'center',
                       gap: 12,
-                      padding: '12px 16px',
+                      padding: '12px 14px',
                       background: 'rgba(34, 197, 94, 0.08)',
                       borderRadius: '6px',
                       border: '1px solid rgba(34, 197, 94, 0.25)',
                       marginBottom: 16,
                     }}>
-                      <CheckCircle2 size={20} style={{ color: '#22c55e' }} />
-                      <div>
-                        <strong style={{ display: 'block', fontSize: '13px', color: 'var(--color-text-primary)' }}>MFA Verification Required on Login</strong>
-                        <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>Secret is encrypted with AES-256-GCM at rest in MySQL.</span>
-                      </div>
+                      <CheckCircle2 size={18} style={{ color: '#22c55e' }} />
+                      <span style={{ fontSize: '13px', color: 'var(--color-text-primary)', fontWeight: 500 }}>
+                        Two-factor authentication is protecting this account.
+                      </span>
                     </div>
 
                     {!mfaDisabling ? (
@@ -765,9 +731,9 @@ export function AdminAccount() {
                       </button>
                     ) : (
                       <form onSubmit={handleDisableMfa} style={{ maxWidth: 320 }}>
-                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: 4 }}>Enter Current 2FA Code or Password</label>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: 4 }}>Enter Current 6-Digit Code</label>
                         <input
-                          placeholder="6-digit code or account password"
+                          placeholder="123456"
                           value={mfaDisableCode}
                           onChange={(e) => setMfaDisableCode(e.target.value)}
                           required
@@ -798,25 +764,25 @@ export function AdminAccount() {
                   <div>
                     {!mfaSetupData ? (
                       <button className="admin-btn admin-btn--primary" onClick={handleStartMfaSetup} disabled={saving}>
-                        <QrCode size={14} /> Set Up 2FA for Administrator
+                        <QrCode size={14} /> Set Up Two-Factor Authentication
                       </button>
                     ) : (
                       <div style={{ background: 'var(--color-bg-secondary)', padding: 16, borderRadius: 8, border: '1px solid var(--color-border-light)' }}>
-                        <h4 style={{ fontSize: '13px', marginBottom: 8 }}>Scan QR Code with Authenticator App</h4>
+                        <h4 style={{ fontSize: '13px', marginBottom: 8 }}>Scan QR Code with your Authenticator</h4>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center', marginBottom: 16 }}>
                           {mfaSetupData.qrCodeDataUrl && (
                             <img
                               src={mfaSetupData.qrCodeDataUrl}
                               alt="2FA QR Code"
-                              style={{ width: 130, height: 130, borderRadius: 6, border: '1px solid #E8E6DF' }}
+                              style={{ width: 120, height: 120, borderRadius: 6, border: '1px solid #E8E6DF' }}
                             />
                           )}
-                          <div style={{ flex: 1, minWidth: 200 }}>
-                            <span style={{ fontSize: '10px', color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Manual Setup Key</span>
-                            <code style={{ display: 'block', fontSize: '12px', background: '#FFFFFF', padding: '6px 10px', borderRadius: 4, margin: '2px 0 8px', border: '1px solid var(--color-border-light)', wordBreak: 'break-all' }}>
+                          <div style={{ flex: 1, minWidth: 180 }}>
+                            <span style={{ fontSize: '10px', color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Setup Key</span>
+                            <code style={{ display: 'block', fontSize: '11px', background: '#FFFFFF', padding: '6px 8px', borderRadius: 4, margin: '2px 0 8px', border: '1px solid var(--color-border-light)', wordBreak: 'break-all' }}>
                               {mfaSetupData.secret}
                             </code>
-                            <span style={{ fontSize: '10px', color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>One-Time Backup Recovery Codes</span>
+                            <span style={{ fontSize: '10px', color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Backup Recovery Codes</span>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3, background: '#FFFFFF', padding: 6, borderRadius: 4, border: '1px solid var(--color-border-light)', fontFamily: 'monospace', fontSize: '10px' }}>
                               {mfaSetupData.recoveryCodes?.map((c, idx) => <span key={idx}>{c}</span>)}
                             </div>
@@ -824,7 +790,7 @@ export function AdminAccount() {
                         </div>
 
                         <form onSubmit={handleConfirmEnableMfa} style={{ maxWidth: 300 }}>
-                          <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: 4 }}>Enter 6-digit code from app to activate:</label>
+                          <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: 4 }}>Enter 6-digit code to verify:</label>
                           <input
                             placeholder="123456"
                             value={mfaVerifyCode}
@@ -846,7 +812,7 @@ export function AdminAccount() {
                           />
                           <div style={{ display: 'flex', gap: 8 }}>
                             <button type="submit" className="admin-btn admin-btn--primary" disabled={saving}>
-                              Verify & Enable
+                              Enable 2FA
                             </button>
                             <button type="button" className="admin-btn admin-btn--secondary" onClick={() => setMfaSetupData(null)}>
                               Cancel
@@ -866,71 +832,77 @@ export function AdminAccount() {
             <div className="admin-panel__header">
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Laptop size={18} style={{ color: 'var(--color-accent-primary)' }} />
-                <h2 className="admin-panel__title">Active Administrator Sessions</h2>
+                <h2 className="admin-panel__title">Active Sessions</h2>
               </div>
-              <button className="admin-btn admin-btn--secondary" onClick={handleRevokeOtherSessions} disabled={saving} style={{ fontSize: '11px', padding: '4px 10px' }}>
-                Sign Out Other Sessions
-              </button>
+              {sessions.length > 1 && (
+                <button className="admin-btn admin-btn--secondary" onClick={handleRevokeOtherSessions} disabled={saving} style={{ fontSize: '11px', padding: '4px 10px' }}>
+                  Sign Out Other Sessions
+                </button>
+              )}
             </div>
             <div className="admin-panel__body">
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {sessions.map((sess) => (
-                  <div
-                    key={sess.id}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '12px 16px',
-                      background: sess.isCurrent ? 'rgba(197, 168, 128, 0.08)' : 'var(--color-bg-secondary)',
-                      borderRadius: '6px',
-                      border: sess.isCurrent ? '1px solid rgba(197, 168, 128, 0.3)' : '1px solid var(--color-border-light)',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      {sess.device === 'Mobile' ? <Smartphone size={18} /> : <Laptop size={18} />}
+              {sessions.length === 0 ? (
+                <p style={{ color: 'var(--color-text-tertiary)', fontSize: '13px', margin: 0 }}>No additional active sessions.</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {sessions.map((sess) => (
+                    <div
+                      key={sess.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '12px 14px',
+                        background: sess.isCurrent ? 'rgba(197, 168, 128, 0.08)' : 'var(--color-bg-secondary)',
+                        borderRadius: '6px',
+                        border: sess.isCurrent ? '1px solid rgba(197, 168, 128, 0.3)' : '1px solid var(--color-border-light)',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        {sess.device === 'Mobile' ? <Smartphone size={18} /> : <Laptop size={18} />}
+                        <div>
+                          <strong style={{ fontSize: '13px', display: 'block' }}>
+                            {sess.browser || 'Web Browser'} on {sess.os || 'Desktop'} {sess.isCurrent && '— Current Session'}
+                          </strong>
+                          <span style={{ fontSize: '11.5px', color: 'var(--color-text-tertiary)' }}>
+                            Last active: {new Date(sess.lastActiveAt).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
                       <div>
-                        <strong style={{ fontSize: '13px', display: 'block' }}>
-                          {sess.browser} on {sess.os} {sess.isCurrent && '— This Session'}
-                        </strong>
-                        <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>
-                          IP Address: {sess.ipAddress} • Last Active: {new Date(sess.lastActiveAt).toLocaleString()}
-                        </span>
+                        {sess.isCurrent ? (
+                          <span className="admin-badge admin-badge--gold">Current</span>
+                        ) : (
+                          <button
+                            className="admin-action-btn"
+                            onClick={() => handleRevokeSingleSession(sess.id)}
+                            style={{ color: '#ef4444', fontSize: '11px' }}
+                          >
+                            Sign Out
+                          </button>
+                        )}
                       </div>
                     </div>
-                    <div>
-                      {sess.isCurrent ? (
-                        <span className="admin-badge admin-badge--gold">CURRENT SESSION</span>
-                      ) : (
-                        <button
-                          className="admin-action-btn"
-                          onClick={() => handleRevokeSingleSession(sess.id)}
-                          style={{ color: '#ef4444', fontSize: '11px' }}
-                        >
-                          Revoke
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* ── TAB 3: Security Events Trail ── */}
+      {/* ── TAB 3: Activity Trail ── */}
       {activeTab === 'audit' && (
         <div className="admin-panel">
           <div className="admin-panel__header">
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <ScrollText size={18} style={{ color: 'var(--color-accent-primary)' }} />
-              <h2 className="admin-panel__title">Recent Administrator Security Events</h2>
+              <h2 className="admin-panel__title">Recent Activity</h2>
             </div>
           </div>
           <div className="admin-panel__body">
             {auditLogs.length === 0 ? (
-              <p style={{ color: 'var(--color-text-tertiary)', fontSize: '12px', margin: 0 }}>No administrative audit events recorded yet.</p>
+              <p style={{ color: 'var(--color-text-tertiary)', fontSize: '13px', margin: 0 }}>No recent security activity.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {auditLogs.map((log) => (
@@ -944,12 +916,12 @@ export function AdminAccount() {
                       borderRadius: '6px',
                       background: 'var(--color-bg-secondary)',
                       border: '1px solid var(--color-border-light)',
-                      fontSize: '12px',
+                      fontSize: '12.5px',
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span className="admin-badge admin-badge--gold" style={{ fontSize: '10px' }}>{log.action}</span>
-                      <span style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>{log.entity}: {log.details || 'Action logged'}</span>
+                      <span style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>{log.entity}: {log.details || 'Activity logged'}</span>
                     </div>
                     <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>
                       {new Date(log.createdAt).toLocaleString()}

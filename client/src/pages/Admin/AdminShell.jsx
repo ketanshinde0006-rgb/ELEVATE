@@ -102,7 +102,7 @@ function AdminShell() {
             </div>
             <div className="admin-sidebar__brand-text">
               <div className="admin-sidebar__title">ELEVATE</div>
-              <div className="admin-sidebar__subtitle">OPERATIONS COMMAND</div>
+              <div className="admin-sidebar__subtitle">OPERATIONS</div>
             </div>
           </div>
         </div>
@@ -197,7 +197,7 @@ function AdminShell() {
               {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
             <nav className="admin-breadcrumb" aria-label="Breadcrumb">
-              <span className="admin-breadcrumb__root">Console</span>
+              <span className="admin-breadcrumb__root">Operations</span>
               <span className="admin-breadcrumb__sep">/</span>
               <span className="admin-breadcrumb__section">{breadcrumb.section}</span>
               <span className="admin-breadcrumb__sep">/</span>
@@ -208,7 +208,7 @@ function AdminShell() {
           <div className="admin-header__right">
             <div className="admin-header__status">
               <span className="admin-status-dot admin-status-dot--online" />
-              <span className="admin-header__status-text">Production Mesh Active</span>
+              <span className="admin-header__status-text">System Online</span>
             </div>
             <a
               href="/"
