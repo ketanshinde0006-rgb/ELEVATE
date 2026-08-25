@@ -267,11 +267,13 @@
 
 /* ── CTA Banner ── */
 .about-cta-banner {
-  background: #161514;
+  background: #FFFFFF;
+  border: 1px solid var(--color-border);
   border-radius: 24px;
   padding: 48px 36px;
   text-align: center;
-  color: #FFFFFF;
+  color: var(--color-text-primary);
+  box-shadow: 0 4px 20px rgba(20, 19, 18, 0.04);
 }
 
 .about-cta-banner__title {
@@ -279,11 +281,12 @@
   font-size: clamp(1.8rem, 3vw, 2.4rem);
   font-weight: 700;
   margin: 0 0 12px;
+  color: var(--color-text-primary);
 }
 
 .about-cta-banner__desc {
   font-size: 14px;
-  color: rgba(250, 248, 245, 0.75);
+  color: var(--color-text-secondary);
   line-height: 1.6;
   max-width: 580px;
   margin: 0 auto 24px;
